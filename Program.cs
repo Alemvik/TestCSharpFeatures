@@ -5,6 +5,7 @@ https://docs.microsoft.com/en-us/dotnet/core/tools/
 https://docs.microsoft.com/en-us/dotnet/core/install/macos
 https://docs.microsoft.com/en-us/dotnet/core/install/windows?tabs=net50
 https://www.tutorialsteacher.com/core/net-core-command-line-interface
+https://git-scm.com/
 https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line
 
 Formatting options for c# (omnisharp.json): https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.csharp.formatting.csharpformattingoptions?view=roslyn-dotnet

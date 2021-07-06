@@ -3,3 +3,5 @@ obj/
 bin/
 .vscode/
 BenchmarkDotNet.Artifacts/
+fossil.db
+.fslckout
