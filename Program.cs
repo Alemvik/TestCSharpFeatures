@@ -7,7 +7,7 @@ https://docs.microsoft.com/en-us/dotnet/core/install/windows?tabs=net50
 https://www.tutorialsteacher.com/core/net-core-command-line-interface
 https://git-scm.com/
 https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line
-
+https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf
 Formatting options for c# (omnisharp.json): https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.csharp.formatting.csharpformattingoptions?view=roslyn-dotnet
 
 This document is best viewed when keeping tab characters and to have them worth 2 spaces.
@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -70,24 +71,24 @@ namespace Test {
 			await TestDynamicType.Tester.Go("Alemvik");
 
 			var tbl = ConvertCSVtoDataTable("Test.csv");
-			foreach (DataColumn c in tbl.Columns) Console.Write($"{c.ColumnName,-30}"); Console.Write($"\n{new String('-', 40)}\n");
+			foreach (DataColumn c in tbl.Columns) Console.Write($"{c.ColumnName,-20}"); Console.Write($"\n{new String('-', 20 * tbl.Columns.Count)}\n");
 			foreach (DataRow r in tbl.Rows) {
-				foreach (DataColumn c in tbl.Columns) Console.Write($"{r[c.Ordinal],-30}");
+				foreach (DataColumn c in tbl.Columns) Console.Write($"{r[c.Ordinal],-20}");
 				Console.Write("\n");
 			}
 		}
 		public static DataTable ConvertCSVtoDataTable(string filePath_a, char unusedChar_a = '∙')
 		{
-			//return ConvertCSVtoDataTable(new StreamReader(filePath_a), unusedChar_a);
+			//return ConvertCSVtoDataTable(new StreamReader(filePath_a), null, unusedChar_a);
 
 			MemoryStream ms = new MemoryStream();
 			using (FileStream fs = new FileStream(filePath_a, FileMode.Open, FileAccess.Read)) fs.CopyTo(ms);
 			ms.Seek(0,SeekOrigin.Begin);
 			var sr = new StreamReader(ms);
-			return ConvertCSVtoDataTable(sr, unusedChar_a);
+			return ConvertCSVtoDataTable(sr, new string[] {"first","birth date"}, unusedChar_a);
 		}
 
-		public static DataTable ConvertCSVtoDataTable(StreamReader sr_a, char unusedChar_a = '∙')
+		public static DataTable ConvertCSVtoDataTable(StreamReader sr_a, IEnumerable<string> columns_a=null, char unusedChar_a = '∙')
 		{
 			//StreamReader sr = new StreamReader(filePath_a);
 			string[] headers = FixLine(sr_a.ReadLine(), unusedChar_a).Split(unusedChar_a);
@@ -98,9 +99,17 @@ namespace Test {
 				string[] rows = FixLine(sr_a.ReadLine(), unusedChar_a).Split(unusedChar_a);
 				if (rows.Length != dt.Columns.Count) continue;
 				DataRow dr = dt.NewRow();
-				for (int i=0; i < headers.Length ;i++) dr[i] = rows[i].Trim();
+				for (int i=0; i < headers.Length ;i++) {
+					if (columns_a is null || columns_a.Contains(dt.Columns[i].ColumnName.ToLower())) dr[i] = rows[i].Trim();
+				}
 				dt.Rows.Add(dr);
 			}
+
+			if (columns_a is not null)
+				for (int i=dt.Columns.Count-1; i>=0 ;i--) 
+					if (!columns_a.Contains(dt.Columns[i].ColumnName.ToLower()))
+						dt.Columns.RemoveAt(i);
+
 			return dt;
 
 			static string FixLine(string line_a, char newSeparator_a = '∙') {
