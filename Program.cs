@@ -32,7 +32,6 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
@@ -79,16 +78,17 @@ namespace Test {
 		}
 		public static DataTable ConvertCSVtoDataTable(string filePath_a, char unusedChar_a = '∙')
 		{
-			//return ConvertCSVtoDataTable(new StreamReader(filePath_a), null, unusedChar_a);
+			//using (var sr = new StreamReader(filePath_a)) return ConvertCSVtoDataTable(sr, null, unusedChar_a);
 
 			MemoryStream ms = new MemoryStream();
 			using (FileStream fs = new FileStream(filePath_a, FileMode.Open, FileAccess.Read)) fs.CopyTo(ms);
-			ms.Seek(0,SeekOrigin.Begin);
+			ms.Seek(0, SeekOrigin.Begin);
 			var sr = new StreamReader(ms);
-			return ConvertCSVtoDataTable(sr, new string[] {"first","birth date"}, unusedChar_a);
+			return ConvertCSVtoDataTable(sr, new string[] { "first", "birth date" }, unusedChar_a);
 		}
 
-		public static DataTable ConvertCSVtoDataTable(StreamReader sr_a, IEnumerable<string> columns_a=null, char unusedChar_a = '∙')
+		// Call it using: using (var sr = new StreamReader(filePath_a)) return ConvertCSVtoDataTable(sr, null, unusedChar_a);
+		public static DataTable ConvertCSVtoDataTable(StreamReader sr_a, IEnumerable<string> columns_a = null, char unusedChar_a = '∙')
 		{
 			//StreamReader sr = new StreamReader(filePath_a);
 			string[] headers = FixLine(sr_a.ReadLine(), unusedChar_a).Split(unusedChar_a);
@@ -99,27 +99,33 @@ namespace Test {
 				string[] rows = FixLine(sr_a.ReadLine(), unusedChar_a).Split(unusedChar_a);
 				if (rows.Length != dt.Columns.Count) continue;
 				DataRow dr = dt.NewRow();
-				for (int i=0; i < headers.Length ;i++) {
+				for (int i = 0; i < headers.Length; i++) {
 					if (columns_a is null || columns_a.Contains(dt.Columns[i].ColumnName.ToLower())) dr[i] = rows[i].Trim();
 				}
 				dt.Rows.Add(dr);
 			}
 
 			if (columns_a is not null)
-				for (int i=dt.Columns.Count-1; i>=0 ;i--) 
+				for (int i = dt.Columns.Count - 1; i >= 0; i--)
 					if (!columns_a.Contains(dt.Columns[i].ColumnName.ToLower()))
 						dt.Columns.RemoveAt(i);
 
 			return dt;
 
-			static string FixLine(string line_a, char newSeparator_a = '∙') {
+			static string FixLine(string line_a, char newSeparator_a = '∙')
+			{
 				var sb = new StringBuilder();
 				bool escaping = false;
 				for (int i = 0; i < line_a.Length; i++) {
 					if (line_a[i] == ',') sb.Append(escaping ? ',' : newSeparator_a);
-					else if (line_a[i] == '\'') {
-						if (i < line_a.Length - 1 && line_a[i + 1] == '\'') sb.Append(line_a[i++]);
-						else escaping = !escaping;
+					else if (line_a[i] == '"') {
+						if (escaping) {
+							if (i < line_a.Length - 1 && line_a[i + 1] == '"') sb.Append(line_a[i++]);
+							else escaping = false;
+						} else {
+							if (i == 0 || line_a[i - 1] == ',') escaping = true;
+							else sb.Append('"');
+						}
 					} else sb.Append(line_a[i]);
 				}
 				return sb.ToString();
