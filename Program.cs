@@ -30,13 +30,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
-using Emvie; // To get the DataTable ToCsv extension
-using cnv = Emvie.Convertion;
+//using Emvie;
+using static Emvie.Convertion; // To get the DataTable ToCsv extension
+//using cnv = Emvie.Convertion;
 
 namespace Test {
 	public class ProductOwner {
@@ -72,12 +71,19 @@ namespace Test {
 			await TestDynamicType.Tester.Go("ElfoCrash");
 			await TestDynamicType.Tester.Go("Alemvik");
 
-			var tbl = cnv.ConvertCsvToDataTable("Test.csv");
+			DataTable tbl;
+			//using (var sr = new StreamReader("Program.cs")) tbl = ConvertCsvToDataTable(sr);
+			var ms = new MemoryStream();
+			using (FileStream fs = new FileStream("Program.cs", FileMode.Open, FileAccess.Read)) fs.CopyTo(ms);
+			ms.Seek(0, SeekOrigin.Begin);
+			using (var sr = new StreamReader(ms)) tbl = ConvertCsvToDataTable(sr, new string[] { "first", "last", "birth date" });
+
 			foreach (DataColumn c in tbl.Columns) Console.Write($"{c.ColumnName,-20}"); Console.Write($"\n{new String('-', 20 * tbl.Columns.Count)}\n");
 			foreach (DataRow r in tbl.Rows) {
 				foreach (DataColumn c in tbl.Columns) Console.Write($"{r[c.Ordinal],-20}");
 				Console.Write("\n");
 			}
+			Console.WriteLine($"tbl.Columns.Count = {tbl.Columns.Count}, tbl.Rows.Count = {tbl.Rows.Count}");
 			string csv = tbl.ToCsv();
 
 			Console.ForegroundColor = ConsoleColor.Magenta;
