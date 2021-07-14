@@ -73,11 +73,11 @@ namespace Test {
 			await TestDynamicType.Tester.Go("Alemvik");
 
 			DataTable tbl;
-			//using (var sr = new StreamReader("Program.cs")) tbl = ConvertCsvToDataTable(sr);
-			var ms = new MemoryStream();
-			using (FileStream fs = new FileStream("Program.cs", FileMode.Open, FileAccess.Read)) fs.CopyTo(ms);
-			ms.Seek(0, SeekOrigin.Begin);
-			using (var sr = new StreamReader(ms)) tbl = ConvertCsvToDataTable(sr, new string[] { "first", "last", "birth date" });
+			using (var sr = new StreamReader("Test.csv")) tbl = ConvertCsvToDataTable(sr, new string[] { "first", "last", "birth date" });
+			// var ms = new MemoryStream();
+			// using (FileStream fs = new FileStream("Test.csv", FileMode.Open, FileAccess.Read)) fs.CopyTo(ms);
+			// ms.Seek(0, SeekOrigin.Begin);
+			// using (var sr = new StreamReader(ms)) tbl = ConvertCsvToDataTable(sr, new string[] { "first", "last", "birth date" });
 
 			foreach (DataColumn c in tbl.Columns) Console.Write($"{c.ColumnName,-20}"); Console.Write($"\n{new String('-', 20 * tbl.Columns.Count)}\n");
 			foreach (DataRow r in tbl.Rows) {
