@@ -21,7 +21,7 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 	% dotnet build
 	% dotnet run TestAsync.dll 
 
-Usefull VsCode extensions (I only use the C# extension): Auto Rename Tag, C#, Code Runner, Debugger for Chrome, HTML CSS Support, HTML Preview, .Net Core Tools, NuGet Package Manager, Subtitles Editor, Thunder Client, vscode-icons, XML Tools
+Usefull VsCode extensions: .NET Core Test Explorer, Auto Rename Tag, C#, Code Runner, Debugger for Chrome, HTML CSS Support, HTML Preview, .Net Core Tools, NuGet Package Manager, Subtitles Editor, Thunder Client, vscode-icons, XML Tools
 
 To test this, just comment in/out the throw lines from the three task members.
 */
@@ -68,6 +68,7 @@ namespace Test {
 			//TestJson.Tester.Go(false);
 			//TestLinq.Tester.Go();
 			//TestExtension.Tester.Go();
+			TestSpan.Tester.Go();
 			await TestDynamicType.Tester.Go("ElfoCrash");
 			await TestDynamicType.Tester.Go("Alemvik");
 

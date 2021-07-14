@@ -14,7 +14,7 @@
 		"NewLineForFinally": false,
 		"1IndentBlock": false,
 		"UseTabs": true,
-		"1SpaceAfterComma": true,
+		"SpaceAfterComma": true,
 		"1TabSize": 2,
 		"1IndentationSize": 2,
 		"1IndentBraces": true,
