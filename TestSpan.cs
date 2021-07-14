@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using Emvie;
+
 // Basicly, spans point to data and they have a length e.g a span may be a pointer to 
 // the middle two letters of this string "111AA111". Good practice would be to return a span
 // instean of a string, allowing the caller to make a string out of it if needed.
@@ -12,7 +14,7 @@ namespace TestSpan { // https://www.youtube.com/watch?v=FM5dpxJMULY
 		{
 			var dateParts = GetDateComponents(DateTime.Now.ToString("yyyy-MM-dd"));
 			Console.WriteLine($"year = {dateParts.year}, month={dateParts.month:00}, day={dateParts.day:00}");
-			string sentence = "aaa bbb ccc ddd";
+			string sentence = "\taaa\tbbb ccc ddd\t    eee  ";
 			Console.WriteLine($"\"{sentence}\"'s middle word is \"{sentence.MiddleWord().ToString()}\"");
 		}
 		static (int year, int month, int day) GetDateComponents(string sdate_a)
@@ -22,7 +24,7 @@ namespace TestSpan { // https://www.youtube.com/watch?v=FM5dpxJMULY
 		}
 		static ReadOnlySpan<char> MiddleWord(this string sentence_a)
 		{
-			ReadOnlySpan<char> span = sentence_a.Trim();
+			ReadOnlySpan<char> span = sentence_a.Cleanup(); // trim then remove extra spaces
 
 			int spaceCount = 0;
 			foreach (char c in span) if (c == ' ') spaceCount++;
