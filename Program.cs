@@ -69,6 +69,8 @@ namespace Test {
 			//TestLinq.Tester.Go();
 			//TestExtension.Tester.Go();
 			TestSpan.Tester.Go();
+			TestStream.Tester.Go();
+
 			await TestDynamicType.Tester.Go("ElfoCrash");
 			await TestDynamicType.Tester.Go("Alemvik");
 

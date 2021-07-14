@@ -12,6 +12,8 @@ namespace TestSpan { // https://www.youtube.com/watch?v=FM5dpxJMULY
 	static class Tester {
 		public static void Go()
 		{
+			Console.WriteLine($"\n--- TestSpan {new String('-', 50)}\n");
+
 			var dateParts = GetDateComponents(DateTime.Now.ToString("yyyy-MM-dd"));
 			Console.WriteLine($"year = {dateParts.year}, month={dateParts.month:00}, day={dateParts.day:00}");
 			string sentence = "\taaa\tbbb ccc ddd\t    eee  ";
@@ -32,9 +34,9 @@ namespace TestSpan { // https://www.youtube.com/watch?v=FM5dpxJMULY
 			if (spaceCount > 0) {
 				spaceCount >>= 1; // divide it by two by shifting it by one
 				for (int i = 0; i < span.Length; i++) if (span[i] == ' ' && (--spaceCount <= 0)) {
-					if (spaceCount<0) return span.Slice(0, i);
-					for (int j = i + 1; j < span.Length; j++) if (span[j] == ' ') return span.Slice(i + 1, j - i - 1);
-				}
+						if (spaceCount < 0) return span.Slice(0, i);
+						for (int j = i + 1; j < span.Length; j++) if (span[j] == ' ') return span.Slice(i + 1, j - i - 1);
+					}
 			}
 
 			return span;

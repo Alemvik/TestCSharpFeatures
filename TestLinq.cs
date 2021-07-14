@@ -5,21 +5,24 @@ using System.Linq;
 
 namespace TestLinq {
 	static class Tester {
-		public static void Go() {
+		public static void Go()
+		{
+			Console.WriteLine($"\n--- TestLinq {new String('-', 50)}\n");
+
 			var owners = new List<Owner> {
-			   new Owner { Name = "Alain Trépanier", Pets = new Pet[] { new Pet { Name="Miko", Age=5 }, new Pet { Name="Betzie", Age=2 },new Pet { Name="Émeraude", Age=6 }}},
-			   new Owner { Name = "Évie Dutel", Pets = new Pet[] { new Pet { Name = "Snowball", Age = 1}}},
-			   new Owner { Name = "Sam Bucca", Pets = new Pet[] { new Pet { Name = "Belle", Age = 8} }},
-			   new Owner { Name = "Thomas Hawk", Pets = new Pet[] { new Pet { Name = "Sweetie", Age = 6}, new Pet { Name = "Rover", Age = 13}} }};
+				new Owner { Name = "Alain Trépanier", Pets = new Pet[] { new Pet { Name = "Miko", Age = 5 }, new Pet { Name = "Betzie", Age = 2 }, new Pet { Name = "Émeraude", Age = 6 } } },
+			   new Owner { Name = "Évie Dutel", Pets = new Pet[] { new Pet { Name = "Snowball", Age = 1 } } },
+			   new Owner { Name = "Sam Bucca", Pets = new Pet[] { new Pet { Name = "Belle", Age = 8 } } },
+			   new Owner { Name = "Thomas Hawk", Pets = new Pet[] { new Pet { Name = "Sweetie", Age = 6 }, new Pet { Name = "Rover", Age = 13 } } }};
 
 			// LINQ comes in two syntactical flavors: The Query syntax and the Method syntax. They can do almost the same, but while 
 			// the query syntax is almost a new language within C#, the method syntax looks just like regular C# method calls.
 
 			// Query syntax
 			IEnumerable<string> namesA = from person in owners
-				where person.Pets.All(pet => pet.Age > 5)
-				orderby person.Name descending
-				select person.Name;
+										 where person.Pets.All(pet => pet.Age > 5)
+										 orderby person.Name descending
+										 select person.Name;
 
 			// Methos syntax
 			IEnumerable<string> namesB = owners
@@ -38,7 +41,8 @@ namespace TestLinq {
 			public string Name { get; set; }
 			public int Age { get; set; }
 
-			public override string ToString() {
+			public override string ToString()
+			{
 				return $"{this.Name} ({this.Age})";
 			}
 		}
@@ -46,7 +50,8 @@ namespace TestLinq {
 			public string Name { get; set; }
 			public Pet[] Pets { get; set; }
 
-			public override string ToString() {
+			public override string ToString()
+			{
 				var pets = Pets.OrderBy(x => x.Name).Select(x => x.ToString());
 				return $"{this.Name}: {String.Join(",", pets.ToArray())}";
 			}

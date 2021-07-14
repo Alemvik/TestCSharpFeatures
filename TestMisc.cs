@@ -11,7 +11,8 @@ namespace TestMisc {
 
 		public SurveyQuestion(string question, string hint = "") => (Question, Hint) = (question, hint);
 
-		public override string ToString() {
+		public override string ToString()
+		{
 			if (Hint.Length > 0) return $"{Question} (hint: {Hint})";
 			return Question;
 		}
@@ -23,7 +24,10 @@ namespace TestMisc {
 		public double z { get; init; }
 	}
 	class Tester {
-		public static void Go() {
+		public static void Go()
+		{
+			Console.WriteLine($"\n--- TestMisc {new String('-', 50)}\n");
+
 			{  // Anonymous type feature
 				var person = new { Name = "Alice", Age = 25 };
 				Console.WriteLine($"The person is called {person.Name} and is {person.Age} years old.\n");
@@ -85,7 +89,7 @@ namespace TestMisc {
 			}
 		}
 
-		static unsafe void DisplaySizeof<T>() where T : unmanaged 
+		static unsafe void DisplaySizeof<T>() where T : unmanaged
 		{ // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/unmanaged-types
 			Console.WriteLine($"the size of a {typeof(T)} is {sizeof(T)}");
 		}

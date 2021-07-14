@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace TestDynamicType { // https://www.youtube.com/watch?v=VyGAEbmiWjE&t=729s
 	static class Tester {
-		public static async Task Go(string githubUser_a = "Alemvik") {
+		public static async Task Go(string githubUser_a = "Alemvik")
+		{
+			Console.WriteLine($"\n--- TestDynamicType {new String('-', 50)}\n");
+
 			var httpClient = new HttpClient {
 				DefaultRequestHeaders = {
 					Accept = {new MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json")},
