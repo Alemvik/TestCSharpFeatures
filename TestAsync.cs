@@ -13,7 +13,7 @@ namespace TestAsync {
 		static Stopwatch _sw;
 		public static void Go()
 		{
-			Console.WriteLine($"\n--- TestStream {new String('-', 50)}\n");
+			Console.WriteLine($"\n--- TestAsync {new String('-', 50)}\n");
 
 			_sw = Stopwatch.StartNew();
 			var taskA = GrindCoffeeTask();
