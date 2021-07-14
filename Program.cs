@@ -70,9 +70,13 @@ namespace Test {
 			//TestExtension.Tester.Go();
 			TestSpan.Tester.Go();
 			TestStream.Tester.Go();
+			await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
+			//TestCsv();
+		}
 
-			await TestDynamicType.Tester.Go("ElfoCrash");
-			await TestDynamicType.Tester.Go("Alemvik");
+		static void TestCsv()
+		{
+			Console.WriteLine($"\n--- TestCsv {new String('-', 50)}\n");
 
 			DataTable tbl;
 			using (var sr = new StreamReader("Test.csv")) tbl = ConvertCsvToDataTable(sr, new string[] { "first", "last", "birth date" });
