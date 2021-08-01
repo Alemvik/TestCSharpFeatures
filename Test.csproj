@@ -10,7 +10,7 @@ https://www.nuget.org/packages/Jil/
 		<TargetFramework>net5.0</TargetFramework>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>disable</Nullable>
-		<NoWarn>CS0162,CS0168,CS8321</NoWarn>
+		<NoWarn>CS0162,CS0168,CS8321,CS1998</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>

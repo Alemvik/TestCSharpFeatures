@@ -63,15 +63,18 @@ namespace Test {
 			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), config.GetValue<string>("ConsoleForegroundColor"), true);
 			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}; {po}");
 
-			//TestAsync.Tester.Go();
-			//TestMisc.Tester.Go();
-			//TestJson.Tester.Go(false);
-			//TestLinq.Tester.Go();
-			//TestExtension.Tester.Go();
-			TestSpan.Tester.Go();
-			TestStream.Tester.Go();
-			await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
+			// TestAsync.Tester.Go();
+			// TestMisc.Tester.Go();
+			// TestJson.Tester.Go(false);
+			// TestLinq.Tester.Go();
+			// TestExtension.Tester.Go();
+			// TestSpan.Tester.Go();
+			// TestStream.Tester.Go();
+			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
 			//TestCsv();
+			TestXquery.Tester.Go();
+
+			//Console.WriteLine(DateTime.Now.Date); // How to havie it is OS format ?
 		}
 
 		static void TestCsv()
