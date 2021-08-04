@@ -1,7 +1,42 @@
-﻿using System;
+﻿/*
+Parallelism broadly means achieving concurrency by distributing work across multiple CPUs.
+
+The subtle difference betwwen concurrency and parallelism is that concurrency means that the system
+is able to advance multiple tasks indipendently while parallelism advance them at the same exact time.
+
+So, concurrency is about dealing with lots of things at once while parallelism is about doing lots of things at once.
+
+Async describes how individual threads are used. Async is a programming model. It can be implemented without threads,
+I believe .NET implements with threading, Node.js for example uses a single thread with an event loop to achieve async.
+
+Let me summary them in a story:
+
+∙ Bob started a restaurant and he does all the thing: Being a chef, being a waiter and cashier. this kind of system is non concurrency.
+
+∙ More and more customers come. Bob decided to hire 1 Chef, 1 Waiter and 1 Cashier. He just enjoys to do the management things.
+  Now, at the same time, Waiter gets order while Cashier collects payment from another customer: Now we have a *concurrency * system.
+
+∙ The number of customer continues being increase. 1 waiter is not enough. Bob decided to get another waiter. 
+  Waiter 1 gets order from customer table number 1 to 10, waiter 2 gets order from table number 11 to 20.
+  Getting order is now divided between 2 waiter. Now we have *Parallel * system.
+
+∙ Waiter 1 after getting the order, he bring the order to the kitchen and wait for the food. He just standing there and keep waiting
+  for the Chef. After the food is ready, he bring the food to his customer and getting next order. Bob doesn't want to do this way, he
+  ask waiter 1 stop waiting, After the food is ready, the chef will inform and either waiter 1 or waiter 2 can bring it to the customer.
+  Now we have Async.
+
+Concurrency scales better when you are waiting for things to complete (typically IO), so you can yield threads to do other work while
+that waiting is happening instead of just sitting idle. Parallelism (multi-threading) scales better when you have computationally
+expensive work where you cannot yield the threads back.
+
+https://www.youtube.com/watch?v=lHuyl_WTpME
+
+*/
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
@@ -11,7 +46,7 @@ using Test;
 namespace TestAsync {
 	public static class Tester {
 		static Stopwatch _sw;
-		public static void Go()
+		public static void Go(string directory_a)
 		{
 			Console.WriteLine($"\n--- TestAsync {new String('-', 50)}\n");
 
@@ -45,6 +80,21 @@ namespace TestAsync {
 			Task task = new Task(CallMethod);
 			task.Start();
 			task.Wait();
+
+			Console.WriteLine($"\n--- TestParallelism {new String('-', 50)}\n");
+			if (!Directory.Exists(directory_a)) {
+         	Console.WriteLine($"The directory {directory_a} does not exist.");
+         	return;
+      	}
+
+			String[] files = Directory.GetFiles(directory_a, "*.cs");
+			long totalSize = 0;
+			Parallel.For (0, files.Length, index => { FileInfo fi = new FileInfo(files[index]);
+				long size = fi.Length;
+				Interlocked.Add(ref totalSize, size);
+			});
+			Console.WriteLine("Directory '{0}':", directory_a);
+			Console.WriteLine("{0:N0} files, {1:N0} bytes", files.Length, totalSize);
 		}
 		static async Task<uint> GrindCoffeeTask()
 		{

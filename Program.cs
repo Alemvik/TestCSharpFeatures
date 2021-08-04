@@ -53,7 +53,7 @@ namespace Test {
 	public class Program {
 		public static readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 
-		static async Task Main(string[] args)
+		static async Task Main(string[] args_a)
 		{
 			var po = config.GetSection("ProductOwner").Get<ProductOwner>();
 
@@ -63,7 +63,7 @@ namespace Test {
 			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), config.GetValue<string>("ConsoleForegroundColor"), true);
 			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}; {po}");
 
-			// TestAsync.Tester.Go();
+			TestAsync.Tester.Go(".");
 			// TestMisc.Tester.Go();
 			// TestJson.Tester.Go(false);
 			// TestLinq.Tester.Go();
@@ -72,7 +72,7 @@ namespace Test {
 			// TestStream.Tester.Go();
 			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
 			//TestCsv();
-			TestXquery.Tester.Go();
+			//TestXquery.Tester.Go();
 
 			//Console.WriteLine(DateTime.Now.Date); // How to havie it is OS format ?
 		}
