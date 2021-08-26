@@ -82,7 +82,7 @@ namespace TestXquery {
 				x.Attribute(urn+"Name")?.Value.ToLower() == "report"
 			);
 
-			Console.WriteLine(TriOptimaFxRateToCsv("ExampleExcel2003Format.xml"));
+			Console.WriteLine(TriOptimaFxRateToCsv("ExampleExcel2003FormatSmaller.xml"));
 
 			//var sheet = (from e in root.Element("Worksheet").Elements()select e);
 			//Console.WriteLine(sheet);
