@@ -9,7 +9,8 @@ namespace TestJson {
 	static class Tester {
 		public static void Go(bool doBenchMarks_a = false)
 		{
-			Console.WriteLine($"\n--- TestJson {new String('-', 50)}\n");
+			var msg = "TestJson";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			var jbm = new JsonbenchMarks();
 			string sA = jbm.SerializeFromSystemTextJson();

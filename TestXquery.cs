@@ -46,7 +46,8 @@ namespace TestXquery {
 	static class Tester {
 		public static void Go()
 		{
-			Console.WriteLine($"\n--- TestXquery {new String('-', 50)}\n");
+			var msg = "TestXquery";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			XDocument srcTree = new XDocument(
 				new XComment("This is a comment"),

@@ -9,9 +9,12 @@ https://git-scm.com/
 https://docs.github.com/en/github/importing-your-projects-to-github/importing-source-code-to-github/adding-an-existing-project-to-github-using-the-command-line
 https://code.visualstudio.com/shortcuts/keyboard-shortcuts-macos.pdf
 Formatting options for c# (omnisharp.json): https://docs.microsoft.com/en-us/dotnet/api/microsoft.codeanalysis.csharp.formatting.csharpformattingoptions?view=roslyn-dotnet
+
 This document is best viewed when keeping tab characters and to have them worth 2 spaces.
 Use VsCode's terminal to create project, run, build, etc. examples: 
 	% brew install node  ;optional usefull server tools
+	% brew upgrade ; update brew itself and all it has installed
+	% dotnet --version
 	% dotnet nuget list source
 	% dotnet new console -n TestAsync ; It will create a TestAsync folder (to delete it: %rm -rf TestAsync)
 	% dotnet restore ; Useful to do after adding packages in the Test.csproj file
@@ -26,8 +29,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+
 //using Emvie;
 using static Emvie.Convertion; // To get the DataTable ToCsv extension
 							   //using cnv = Emvie.Convertion;
@@ -45,11 +50,34 @@ namespace Test {
 		public static readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 		static async Task Main(string[] args_a)
 		{
+			// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#getvalue
 			var po = config.GetSection("ProductOwner").Get<ProductOwner>();
+			//var po = config.GetValue<ProductOwner>("ProductOwner");
 			if (!Validator.TryValidateObject(po, new ValidationContext(po), new List<ValidationResult>(), true))
 				throw new Exception("Unable to find all settings");
 			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), config.GetValue<string>("ConsoleForegroundColor"), true);
-			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}; {po}");
+			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");//\nDb={config.GetValue<(string,string)[]>("Db")}");
+
+			{
+				var msg = "Test Read an array ouf tuples from config (appsettings.json)";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+
+				var tuples = config.GetSection("Items")
+					.GetChildren()
+					.Select(x => (x.GetChildren().Select(y => y.Key).FirstOrDefault(),x.GetChildren().Select(y => y.Value).FirstOrDefault()))
+					.ToArray();
+				foreach(var tuple in tuples) Console.WriteLine($"({tuple.Item1},{tuple.Item2})");
+			}
+
+			// Dictionary to list of System.ValueTuple
+			{
+				var msg = "Test System.ValueTuple";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+				List<(long a,int b)> tuples = (new Dictionary<long, int>(){{1L,1},{2L,2}}).Select(x => (x.Key, x.Value)).ToList();
+				foreach(var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})"); // Works but too cumbersome
+			}
+
+			// *** The other tests ***
 			TestAsync.Tester.Go(".");
 			// TestMisc.Tester.Go();
 			// TestJson.Tester.Go(false);
@@ -59,7 +87,7 @@ namespace Test {
 			// TestStream.Tester.Go();
 			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
 			//TestCsv();
-			TestXquery.Tester.Go();
+			//TestXquery.Tester.Go();
 			//Console.WriteLine(DateTime.Now.Date); // How to havie it is OS format ?
 		}
 		static void TestCsv()

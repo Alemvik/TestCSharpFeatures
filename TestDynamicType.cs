@@ -8,7 +8,8 @@ namespace TestDynamicType { // https://www.youtube.com/watch?v=VyGAEbmiWjE&t=729
 	static class Tester {
 		public static async Task Go(string githubUser_a = "Alemvik")
 		{
-			Console.WriteLine($"\n--- TestDynamicType {new String('-', 50)}\n");
+			var msg = "TestDynamicType";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			var httpClient = new HttpClient {
 				DefaultRequestHeaders = {

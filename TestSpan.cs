@@ -12,7 +12,8 @@ namespace TestSpan { // https://www.youtube.com/watch?v=FM5dpxJMULY
 	static class Tester {
 		public static void Go()
 		{
-			Console.WriteLine($"\n--- TestSpan {new String('-', 50)}\n");
+			var msg = "TestSpan";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			var dateParts = GetDateComponents(DateTime.Now.ToString("yyyy-MM-dd"));
 			Console.WriteLine($"year = {dateParts.year}, month={dateParts.month:00}, day={dateParts.day:00}");

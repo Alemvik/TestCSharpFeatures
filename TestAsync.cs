@@ -48,7 +48,8 @@ namespace TestAsync {
 		static Stopwatch _sw;
 		public static void Go(string directory_a)
 		{
-			Console.WriteLine($"\n--- TestAsync {new String('-', 50)}\n");
+			var msg = "TestAsync";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			_sw = Stopwatch.StartNew();
 			var taskA = GrindCoffeeTask();
@@ -81,7 +82,9 @@ namespace TestAsync {
 			task.Start();
 			task.Wait();
 
-			Console.WriteLine($"\n--- TestParallelism {new String('-', 50)}\n");
+			msg = "TestParallelism";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+
 			if (!Directory.Exists(directory_a)) {
          	Console.WriteLine($"The directory {directory_a} does not exist.");
          	return;

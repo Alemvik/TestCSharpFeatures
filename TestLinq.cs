@@ -7,7 +7,8 @@ namespace TestLinq {
 	static class Tester {
 		public static void Go()
 		{
-			Console.WriteLine($"\n--- TestLinq {new String('-', 50)}\n");
+			var msg = "TestLinq";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			var owners = new List<Owner> {
 				new Owner { Name = "Alain Trépanier", Pets = new Pet[] { new Pet { Name = "Miko", Age = 5 }, new Pet { Name = "Betzie", Age = 2 }, new Pet { Name = "Émeraude", Age = 6 } } },

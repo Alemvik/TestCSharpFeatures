@@ -5,7 +5,8 @@ namespace TestExtension { // https://docs.microsoft.com/en-us/dotnet/csharp/prog
 	static class Tester {
 		public static void Go()
 		{
-			Console.WriteLine($"\n--- TestExtension {new String('-', 50)}\n");
+			var msg = "TestExtension";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			Console.WriteLine("abc.def".GlobFits("?bc*")); // starts with any one letter then bc
 			Console.WriteLine("abc.def".GlobFits("*ef")); // ends with ef

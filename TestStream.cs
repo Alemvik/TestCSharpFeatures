@@ -12,7 +12,8 @@ namespace TestStream {
 	static class Tester {
 		public static void Go()
 		{
-			Console.WriteLine($"\n--- TestStream {new String('-',50)}\n");
+			var msg = "TestStream";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			string test = "Je m'appel Éléonore 😜";
 

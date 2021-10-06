@@ -26,7 +26,8 @@ namespace TestMisc {
 	class Tester {
 		public static void Go()
 		{
-			Console.WriteLine($"\n--- TestMisc {new String('-', 50)}\n");
+			var msg = "TestMisc";
+			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			{  // Anonymous type feature
 				var person = new { Name = "Alice", Age = 25 };
