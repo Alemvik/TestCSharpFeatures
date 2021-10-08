@@ -21,6 +21,11 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 	% dotnet run -c debug ; or: dotnet run -c release
 	% dotnet build
 	% dotnet run TestAsync.dll 
+
+   % git status
+	% git add .
+	% git commit -m "messages"
+	% git push -f
 Usefull VsCode extensions: .NET Core Test Explorer, Auto Rename Tag, C#, Code Runner, Debugger for Chrome, HTML CSS Support, HTML Preview, .Net Core Tools, NuGet Package Manager, Subtitles Editor, Thunder Client, vscode-icons, XML Tools
 To test this, just comment in/out the throw lines from the three task members.
 */
@@ -38,12 +43,11 @@ using static Emvie.Convertion; // To get the DataTable ToCsv extension
 							   //using cnv = Emvie.Convertion;
 namespace Test {
 	public class ProductOwner {
+		[Range(5, 15)]
+		public int Id { get; set; }
 		[Required]
 		public string Name { get; set; }
 		public DateTimeOffset StartDate { get; set; }
-		[Range(5, 15)]
-		public int Id { get; set; }
-		// Lambda expression (uses =>)
 		public override string ToString() => $"Owner's name is {Name}, his id is {Id} and his start date is {StartDate.ToString("yyyy-MM-dd")}\n";
 	}
 	public class Program {
@@ -56,36 +60,60 @@ namespace Test {
 			if (!Validator.TryValidateObject(po, new ValidationContext(po), new List<ValidationResult>(), true))
 				throw new Exception("Unable to find all settings");
 			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), config.GetValue<string>("ConsoleForegroundColor"), true);
-			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");//\nDb={config.GetValue<(string,string)[]>("Db")}");
+			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
 
 			{
-				var msg = "Test Read an array ouf tuples from config (appsettings.json)";
+				var msg = "Test Read to \"string[]\" from appsettings.json";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+				var animals = config.GetSection("Animals").Get<string[]>();
+				Console.WriteLine($"Animals: {string.Join(',',animals)}");
+			}
+
+			{
+				var msg = "Test Read to \"(string,string)[]\" from appsettings.json";
 				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
-				var tuples = config.GetSection("Items")
-					.GetChildren()
-					.Select(x => (x.GetChildren().Select(y => y.Key).FirstOrDefault(),x.GetChildren().Select(y => y.Value).FirstOrDefault()))
+				(string Category,string Produce)[] items = config.GetSection("Items")
+				   .Get<Dictionary<string, string>[]>()
+               .SelectMany(i => i) // since this Dictionary has a collection of KeyValuePair
+               .Select(i => (i.Key, i.Value))
 					.ToArray();
-				foreach(var tuple in tuples) Console.WriteLine($"({tuple.Item1},{tuple.Item2})");
+				foreach(var item in items) Console.WriteLine($"({item.Category},{item.Produce})");
+			}
+
+			{
+				var msg = "Test Read to \"List<(string,string[])>\" from appsettings.json";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+
+				List<(string Category,string[] Produces)> products = config.GetSection("Products")
+               .Get<Dictionary<string, string[]>[]>()
+               .SelectMany(i => i)
+					.Select(i => (i.Key, i.Value)) // .Select(i => new ValueTuple<string, string[]>(i.Key, i.Value))
+               .ToList();
+				foreach(var product in products) {
+					Array.Sort(product.Produces);
+					Console.WriteLine($"({product.Category},[{String.Join(',',product.Produces)}])");
+				}
 			}
 
 			// Dictionary to list of System.ValueTuple
 			{
-				var msg = "Test System.ValueTuple";
+				var msg = "Test Dictionary to System.ValueTuple";
 				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 				List<(long a,int b)> tuples = (new Dictionary<long, int>(){{1L,1},{2L,2}}).Select(x => (x.Key, x.Value)).ToList();
-				foreach(var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})"); // Works but too cumbersome
+				foreach(var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})");
 			}
 
 			// *** The other tests ***
-			TestAsync.Tester.Go(".");
+			//TestAsync.Tester.Go(".");
+			//TestDatabase.Tester.Go();
 			// TestMisc.Tester.Go();
 			// TestJson.Tester.Go(false);
 			// TestLinq.Tester.Go();
 			// TestExtension.Tester.Go();
 			// TestSpan.Tester.Go();
 			// TestStream.Tester.Go();
-			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
+			//await TestDynamicType.Tester. Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
 			//TestCsv();
 			//TestXquery.Tester.Go();
 			//Console.WriteLine(DateTime.Now.Date); // How to havie it is OS format ?

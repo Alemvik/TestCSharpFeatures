@@ -16,8 +16,11 @@ namespace TestDatabase {
 
 			{  // MySql database
             DbProviderFactories.RegisterFactory("MySql.Data.MySqlClient", MySql.Data.MySqlClient.MySqlClientFactory.Instance);
-            //var tbl = Db.Exec2Dt("select * from $User$");
-            //foreach (DataRow dr in tbl.Rows) Console.WriteLine($"{dr[0]}\t\t{dr[1]}");
+
+				var db = Db.Instance("MySql.Data.MySqlClient","DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq");
+				Console.WriteLine(db.ServerAndDbName);
+            var tbl = db.ExecToDt("select * from User where name like '%al%' order by Name limit 10;", Db.EFillOption.DataOnly);
+            foreach (DataRow dr in tbl.Rows) Console.WriteLine($"{dr[0]}{new string(' ',35-dr[0].ToString().Length)}{dr[1]}");
 			}
 		}
 	}
