@@ -64,49 +64,53 @@ namespace Test {
 
 			{
 				var msg = "Test Read to \"string[]\" from appsettings.json";
-				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
 				var animals = config.GetSection("Animals").Get<string[]>();
-				Console.WriteLine($"Animals: {string.Join(',',animals)}");
+				Console.WriteLine($"Animals: {string.Join(',', animals)}");
 			}
 
 			{
 				var msg = "Test Read to \"(string,string)[]\" from appsettings.json";
-				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
 
-				(string Category,string Produce)[] items = config.GetSection("Items")
+				(string Category, string Produce)[] items = config.GetSection("Items")
 				   .Get<Dictionary<string, string>[]>()
-               .SelectMany(i => i) // since this Dictionary has a collection of KeyValuePair
-               .Select(i => (i.Key, i.Value))
+			   .SelectMany(d => d) // Flatten from Dictionary[] to KeyValuePair[]
+			   .Select(kvp => (kvp.Key, kvp.Value))
 					.ToArray();
-				foreach(var item in items) Console.WriteLine($"({item.Category},{item.Produce})");
+				foreach (var item in items) Console.WriteLine($"({item.Category},{item.Produce})");
 			}
 
 			{
 				var msg = "Test Read to \"List<(string,string[])>\" from appsettings.json";
-				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
 
-				List<(string Category,string[] Produces)> products = config.GetSection("Products")
-               .Get<Dictionary<string, string[]>[]>()
-               .SelectMany(i => i)
+				List<(string Category, string[] Produces)> products = config.GetSection("Products")
+			   .Get<Dictionary<string, string[]>[]>()
+			   .SelectMany(i => i) // Flatten from Dictionary[] to KeyValuePair[]
 					.Select(i => (i.Key, i.Value)) // .Select(i => new ValueTuple<string, string[]>(i.Key, i.Value))
-               .ToList();
-				foreach(var product in products) {
+			   .ToList();
+				foreach (var product in products) {
 					Array.Sort(product.Produces);
-					Console.WriteLine($"({product.Category},[{String.Join(',',product.Produces)}])");
+					Console.WriteLine($"({product.Category},[{String.Join(',', product.Produces)}])");
 				}
 			}
 
 			// Dictionary to list of System.ValueTuple
 			{
 				var msg = "Test Dictionary to System.ValueTuple";
-				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
-				List<(long a,int b)> tuples = (new Dictionary<long, int>(){{1L,1},{2L,2}}).Select(x => (x.Key, x.Value)).ToList();
-				foreach(var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})");
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
+				List<(long a, int b)> tuples = (new Dictionary<long, int>() { { 1L, 1 }, { 2L, 2 } }).Select(x => (x.Key, x.Value)).ToList();
+				foreach (var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})");
 			}
 
+			var names = new List<string>() { "Alain", "Trépanier" };
+			var namesFlat = names.SelectMany(x => x);
+			foreach (char c in namesFlat) Console.Write(c + " ");
+			Console.Write("\n");
 			// *** The other tests ***
 			//TestAsync.Tester.Go(".");
-			//TestDatabase.Tester.Go();
+			TestDatabase.Tester.Go();
 			// TestMisc.Tester.Go();
 			// TestJson.Tester.Go(false);
 			// TestLinq.Tester.Go();

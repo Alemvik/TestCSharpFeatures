@@ -12,12 +12,12 @@
 		"NewLineForElse": false,
 		"NewLineForCatch": false,
 		"NewLineForFinally": false,
-		"1IndentBlock": false,
+		"IndentBlock": true,
 		"UseTabs": true,
-		"SpaceAfterComma": true,
+		"SpaceAfterComma": false,
 		"1TabSize": 2,
 		"1IndentationSize": 2,
-		"1IndentBraces": true,
+		"IndentBraces": false,
 		"WrappingKeepStatementsOnSingleLine": true
 	}
 }
