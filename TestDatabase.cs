@@ -15,9 +15,9 @@ namespace TestDatabase {
 			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 			{  // Register the ADO.net adapter for MySql database
-            DbProviderFactories.RegisterFactory("MySql.Data.MySqlClient", MySql.Data.MySqlClient.MySqlClientFactory.Instance);
+            DbProviderFactories.RegisterFactory("MySql", MySql.Data.MySqlClient.MySqlClientFactory.Instance);
 
-				Db.Init(new Emvie.DataSource[] {new ("MySqlA","MySql.Data.MySqlClient","DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq")});
+				Db.Init(new Emvie.DataSource[] {new ("MySqlA","MySql","DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq")});
 
 				//var db = Db.Instance("MySql.Data.MySqlClient","DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq");
 				//Console.WriteLine(db.ServerAndDbName);
