@@ -16,12 +16,13 @@ namespace TestDatabase {
 
 			{  // Register the ADO.net adapter for MySql database
             DbProviderFactories.RegisterFactory("MySql", MySql.Data.MySqlClient.MySqlClientFactory.Instance);
+				//DbProviderFactories.RegisterFactory("Oracle", Oracle.ManageDataAccess.Client.MySqlClientFactory.Instance);
 
 				Db.Init(new Emvie.DataSource[] {new ("MySqlA","MySql","DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq")});
 
 				//var db = Db.Instance("MySql.Data.MySqlClient","DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq");
 				//Console.WriteLine(db.ServerAndDbName);
-            var tbl = Db.ToTbl("MySqlA","select * from User where name like '%al%' order by Name limit 10;");
+            var tbl = Db.ToTbl("MySqlA","select * from User where name like '%al%' order by Name limit 10;", EFillOption.DataOnly);
             foreach (DataRow dr in tbl.Rows) Console.WriteLine($"{dr[0]}{new string(' ',35-dr[0].ToString().Length)}{dr[1]}");
 			}
 		}

@@ -40,7 +40,7 @@ using Microsoft.Extensions.Configuration;
 
 //using Emvie;
 using static Emvie.Convertion; // To get the DataTable ToCsv extension
-							   //using cnv = Emvie.Convertion;
+//using cnv = Emvie.Convertion;
 namespace Test {
 	public class ProductOwner {
 		[Range(5, 15)]
@@ -96,6 +96,18 @@ namespace Test {
 				}
 			}
 
+			{
+				var msg = "Test Read to \"List<(string,string,string)>\" from appsettings.json";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
+
+				List<(string nme,string ado,string con)> dataSources = config.GetSection("DataSources")
+			   .Get<Dictionary<string, Dictionary<string, string>>[]>()
+				.SelectMany(i => i)
+				.Select(i => ValueTuple.Create(i.Key,i.Value.First().Key,i.Value.First().Value))
+				.ToList();
+				foreach (var ds in dataSources) Console.WriteLine($"{ds}");
+			}
+
 			// Dictionary to list of System.ValueTuple
 			{
 				var msg = "Test Dictionary to System.ValueTuple";
@@ -104,10 +116,24 @@ namespace Test {
 				foreach (var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})");
 			}
 
-			var names = new List<string>() { "Alain", "Trépanier" };
-			var namesFlat = names.SelectMany(x => x);
-			foreach (char c in namesFlat) Console.Write(c + " ");
-			Console.Write("\n");
+			// Test System.ValueTuple
+			{
+				var msg = "Test System.ValueTuple";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
+				(string nme,string ado,string con)[] dataSources = {("One","SqlServer","Source=..."),("Two","MySql","Source=...")};
+				foreach (var item in dataSources) Console.WriteLine($"{item}");
+			}
+
+			// Test System.ValueTuple
+			{
+				var msg = "Test linq's SelectMany";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
+				var names = new List<string>() { "Alain", "Trépanier" };
+				var namesFlat = names.SelectMany(x => x);
+				foreach (char c in namesFlat) Console.Write(c + " ");
+				Console.Write("\n");
+			}
+
 			// *** The other tests ***
 			//TestAsync.Tester.Go(".");
 			TestDatabase.Tester.Go();
