@@ -30,6 +30,7 @@ Usefull VsCode extensions: .NET Core Test Explorer, Auto Rename Tag, C#, Code Ru
 To test this, just comment in/out the throw lines from the three task members.
 */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
@@ -61,6 +62,16 @@ namespace Test {
 				throw new Exception("Unable to find all settings");
 			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), config.GetValue<string>("ConsoleForegroundColor"), true);
 			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
+
+			{
+				var msg = "Test Dictionary";
+				Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65 - msg.Length, 3))}\n");
+				var da = new Dictionary<string,int>(); // it has hashtable
+				da["Oranges"] = 67;
+				var db = new ConcurrentDictionary<string,int>(); // this one is thread safe and has more features
+				db["Oranges"] = 77;
+				Console.WriteLine($"Oranges count: {da["Oranges"]} and {db["Oranges"]}");
+			}
 
 			{
 				var msg = "Test Read to \"string[]\" from appsettings.json";
@@ -134,13 +145,45 @@ namespace Test {
 				Console.Write("\n");
 			}
 
+			const int dices=1;
+			var result = new List<int[]>();
+			result.Add(new int[dices]); // add first combination
+			Array.Fill(result[0],1);
+			for (;;) {
+				var lastResult = result[result.Count-1];
+				var newResult = new int[dices];
+				lastResult.CopyTo(newResult,0);
+				result.Add(newResult);
+
+				for (int i=0; i<dices ;i++) {
+					if (newResult[i] < 6) {newResult[i]++;break;}
+					if (i==dices-1 && newResult[dices-1]==6) goto A;
+					newResult[i] = 1;
+				}
+			}
+			A:
+			var total = new int[2*dices+1];
+			Array.Fill(total,0);
+			for(int i=0; i<Math.Pow(6,dices) ;i++) {
+				int lineTotal = 0;
+				Console.Write($"\n{i+1,4}: ");
+				for (int j=0; j<dices ;j++) {
+					Console.Write($"{result[i][j],-3}");
+					if (result[i][j] == 6) lineTotal+=2;
+					else if (result[i][j] > 3) lineTotal++;
+				}
+				total[lineTotal]++;
+			}
+			Console.Write("\n----\n");
+			for (int i=0; i<total.Length ;i++) Console.WriteLine($"{i,-4}: {total[i],6}{total[i]/Math.Pow(6,dices)*100,10:0.00}");
+
 			// *** The other tests ***
 			//TestAsync.Tester.Go(".");
 			TestDatabase.Tester.Go();
 			// TestMisc.Tester.Go();
-			// TestJson.Tester.Go(false);
+			TestJson.Tester.Go(false);
 			// TestLinq.Tester.Go();
-			// TestExtension.Tester.Go();
+			TestExtension.Tester.Go();
 			// TestSpan.Tester.Go();
 			// TestStream.Tester.Go();
 			//await TestDynamicType.Tester. Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
