@@ -22,7 +22,7 @@ namespace TestDatabase {
 				// DbProviderFactories.RegisterFactory("Oracle", Oracle.ManageDataAccess.Client.MySqlClientFactory.Instance);
 
          	Db.Init(new Emvie.DataSource[] {new ("MySql","MySql","DataSourcE=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq")});
-            var tbl = Db.ToTbl("MySql","select Name, Manager, Title from Skillango.User order by Name limit 15;");
+            var tbl = Db.ToTbl("MySql",0,"select Name, Manager, Title from Skillango.User order by Name limit 20;",EFillOption.Data,0,15);
             foreach (DataRow dr in tbl.Rows) Console.WriteLine($"{dr[0]}{new String(' ', Math.Max(40-((string)dr[0]).Length,3))}{dr[1]}{new String(' ', Math.Max(30-((string)dr[1]).Length,3))}{dr[2]}");
 
             Db.BeginTransaction("MySql");
@@ -31,7 +31,9 @@ namespace TestDatabase {
 
             long count = (long)Db.ExecScalar("MySql",0,"select count(*) from Skillango.User where Name like @NameMask;",0,"@NameMask","a%");
 
-            Console.WriteLine($"\n{i};{Db.ServerAndDbName("MySql")};count={count}");
+            tbl = Db.ToTbl("MySql",0,"insert into Skillango.log (Type,Message) values ('Warning','Msg6'), ('Warning',@msg7); select ROW_COUNT(), LAST_INSERT_ID() as FirstAutoInc;",EFillOption.Data,0,0,"@msg7","Message 7");
+
+            Console.WriteLine($"\n{i};{Db.ServerAndDbName("MySql")};count={count}; RowCount: {tbl.Rows[0][0]}; FirstAutoInc: {tbl.Rows[0]["FirstAutoInc"]}");
 			}
 		}
 	}

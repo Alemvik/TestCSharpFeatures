@@ -181,9 +181,9 @@ namespace Test {
 			//TestAsync.Tester.Go(".");
 			TestDatabase.Tester.Go();
 			// TestMisc.Tester.Go();
-			TestJson.Tester.Go(false);
+			//TestJson.Tester.Go(false);
 			// TestLinq.Tester.Go();
-			TestExtension.Tester.Go();
+			//TestExtension.Tester.Go();
 			// TestSpan.Tester.Go();
 			// TestStream.Tester.Go();
 			//await TestDynamicType.Tester. Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
