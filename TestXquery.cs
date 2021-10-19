@@ -40,7 +40,7 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using System.Xml.Xsl;
 
-using Emvie;
+using Alemvik;
 
 namespace TestXquery {
 	static class Tester {

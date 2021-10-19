@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-using Emvie;
+using Alemvik;
 
 // Basicly, spans point to data and they have a length e.g a span may be a pointer to 
 // the middle two letters of this string "111AA111". Good practice would be to return a span

@@ -40,9 +40,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
-using Emvie;
-using static Emvie.Convertion; // To get the DataTable ToCsv extension
-//using cnv = Emvie.Convertion;
+using Alemvik;
+using static Alemvik.Convertion; // To get the DataTable ToCsv extension
+//using cnv = Alemvik.Convertion;
 namespace Test {
 	public class ProductOwner {
 		[Range(5,15)]
@@ -119,7 +119,7 @@ namespace Test {
 					.SelectMany(i => i)
 					.Select(i => ValueTuple.Create(i.Key,i.Value.First().Key,i.Value.First().Value))
 					.ToList();
-				Emvie.Db.Init(dataSources);
+				Db.Init(dataSources);
 				foreach (var ds in dataSources) Console.WriteLine($"{ds}");
 			}
 
