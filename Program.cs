@@ -121,7 +121,6 @@ namespace Test {
 					.ToList();
 				Emvie.Db.Init(dataSources);
 				foreach (var ds in dataSources) Console.WriteLine($"{ds}");
-
 			}
 
 			// Dictionary to list of System.ValueTuple
