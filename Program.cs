@@ -203,7 +203,7 @@ namespace Test {
 			//Db.Init(new Emvie.DataSource[] { new("MySqlSrvA", "MySql.Data.MySqlClient", "DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq;program_name=test") });
 
 			List<(string nme, string ado, string con)> dataSources = config.GetSection("DataSources")
-				.Get<Dictionary<string, Dictionary<string, string>>[]>()
+				.Get<Dictionary<string, Dictionary<string, string>>[]>() // make sure you included Microsoft.Extensions.Configuration.Binder nuget package
 				.SelectMany(i => i)
 				.Select(i => ValueTuple.Create(i.Key, i.Value.First().Key, i.Value.First().Value))
 				.ToList();
