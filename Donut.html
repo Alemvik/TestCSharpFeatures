@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>CanvaTst</title>
+	<meta charset="utf-8" />
+	<meta name="author" content="Alain Trepanier">
+	<meta name="description" content="Canvas Demo">
+	<meta name="keywords" content="HTML, CSS, JavaScript">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍩</text></svg>"/>
+
+	<style>
+		html {
+			min-height: 100%;
+		}
+		body { /* https://projects.verou.me/css3patterns/# */
+			background:
+				radial-gradient(black 15%, transparent 16%) 0 0,
+				radial-gradient(black 15%, transparent 16%) 8px 8px,
+				radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 0 1px,
+				radial-gradient(rgba(255,255,255,.1) 15%, transparent 20%) 8px 9px;
+			background-color:#282828;
+			background-size:16px 16px;
+
+			/*background-color:#def;
+			background-image:
+				radial-gradient(closest-side, transparent 98%, rgba(0,0,100,.3) 99%),
+				radial-gradient(closest-side, transparent 98%, rgba(100,0,0,.3) 99%);
+			background-size:80px 80px;
+			background-position:0 0, 40px 40px;*/
+			/*background:coral;
+			background-image: linear-gradient(to bottom right, coral, rgb(211, 169, 107));*/
+		}
+	</style>
+</head>
+
+<body>
+	<!--
+		 https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/beginPath
+		 https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/closePath
+		 https://www.youtube.com/watch?v=4y_nmpv-9lI
+	-->
+	<canvas id="myCanvas" width="300" height="300">This browser does not support the HTML5 canvas tag.</canvas>
+
+	<script>
+		const radius_g = 90, innerRadius_g=28;
+		const pointSize_g = 4;
+		const originX_g = 200;
+		const originY_g = 200;
+		const fromAngle_g = -2 * 15; // 360 is 24 x 15
+		const toAngle_g = 22 * 15;
+		const canvasA_g = document.getElementById("myCanvas");
+		const canvasACtx_g = canvasA_g.getContext("2d");
+
+		CanvasRenderingContext2D.prototype.ringSegment = ringSegment;
+		canvasACtx_g.strokeStyle = 'darkgrey';
+		//canvasACtx_g.fillStyle = "#DB8"; 		//ctx.fillStyle = "rgba(150, 150, 150, 0.85)";//window.getComputedStyle(document.body).getPropertyValue("background-color");
+		// Create gradient
+		var grd = canvasACtx_g.createRadialGradient(originX_g, originY_g, innerRadius_g+1, originX_g, originY_g, radius_g);
+		//grd.addColorStop(0, "#d0c3b6");
+		grd.addColorStop(0.4, "#b9906a");
+		grd.addColorStop(0.7, "#9e734a");
+		grd.addColorStop(1, "#673716");
+		canvasACtx_g.fillStyle = grd;
+		canvasACtx_g.ringSegment(originX_g, originY_g, innerRadius_g, radius_g, fromAngle_g, toAngle_g, true, true);
+		drawRandomPointsInRing(1100,0);
+
+		// https://jsfiddle.net/Alemvik/3qhzsw21/7/
+		/*(function() { // This is an Immediately-Invoked Function Expression, or IIFE for short. It executes immediately after it’s created. See https://stackoverflow.com/questions/8228281/what-is-the-function-construct-in-javascript
+			var annulus = function(centerX, centerY,
+			innerRadius, outerRadius,
+			startAngle, endAngle,
+			anticlockwise) {
+			var th1 = startAngle * Math.PI / 180;
+			var th2 = endAngle * Math.PI / 180;
+			var startOfOuterArcX = outerRadius * Math.cos(th2) + centerX;
+			var startOfOuterArcY = outerRadius * Math.sin(th2) + centerY;
+
+			this.beginPath();
+			this.arc(centerX, centerY, innerRadius, th1, th2, anticlockwise);
+			this.lineTo(startOfOuterArcX, startOfOuterArcY);
+			this.arc(centerX, centerY, outerRadius, th2, th1, !anticlockwise);
+			this.closePath();
+			}
+			CanvasRenderingContext2D.prototype.annulus = annulus;
+		})();*/
+
+		//const degreeToRadian = (degree) => degree / 180 * Math.PI; // Function expressions in JavaScript are not hoisted, unlike function declarations. You can't use function expressions before you create them
+		function degreeToRadian(degree) {
+			return degree / 180 * Math.PI;
+		}
+
+		// Angles are in degrees: 0 is right, 180 is left, 90 (or -270) is bottom, 270 (or -90) is top
+		function ringSegment(originX_a, originY_a, innerRadius_a, outerRadius_a, startAngle_a=0, endAngle_a=360, clockwise_a=true, filled_a=true) {
+			var th1 = degreeToRadian(startAngle_a);
+			var th2 = degreeToRadian(endAngle_a);
+			var startOfOuterArcX = outerRadius_a * Math.cos(th2) + originX_a;
+			var startOfOuterArcY = outerRadius_a * Math.sin(th2) + originY_a;
+
+			this.beginPath();
+			this.arc(originX_a, originY_a, innerRadius_a, th1, th2, !clockwise_a);
+			this.lineTo(startOfOuterArcX, startOfOuterArcY);
+			this.arc(originX_a, originY_a, outerRadius_a, th2, th1, clockwise_a);
+			if (filled_a) this.fill(); else this.closePath();
+		}
+
+		function drawCircle(ctx_a, originX_a, originY_a, radius_a,filled_a=false) {
+			ctx_a.beginPath();
+			ctx_a.arc(originX_a, originY_a, radius_a, 0, 2 * Math.PI);
+			ctx_a.stroke();
+			if (filled_a) ctx_a.fill();
+		}
+
+		function drawPoint(ctx_a, originX_a, originY_a, radius_a, pointSize_a, angleInDegre_a, distance_a, label_a) {
+			var x = originX_g + radius_a * distance_a * Math.cos(degreeToRadian(angleInDegre_a));
+			var y = originY_g + radius_a * distance_a * Math.sin(degreeToRadian(angleInDegre_a));
+
+			ctx_a.beginPath();
+			ctx_a.arc(x, y, pointSize_a, 0, 2 * Math.PI);
+			ctx_a.fill();
+
+			canvasACtx_g.font = "20px Arial";
+			ctx_a.fillText(label_a, x + 10, y);
+		}
+
+		function drawPointInRingAtRandomLocation(ctx_a, originX_a, originY_a, radius_a, offset_a=0, fromAngle_a=0, toAngle_a=360) {
+			if (radius_a - offset_a <= 2 || radius_a < 10 || offset_a < 0) throw `Error in drawPointInCircleAtRandomLocation(): offset_a (here ${offset_a}) must be lower than radius_a (here ${radius_a})`;
+
+			// Method 1 (I use Math.max of two random values so to push distribution away from the origin)
+			//var r = Math.max(getRandomArbitrary(offset_a, radius_a),getRandomArbitrary(offset_a, radius_a));
+			var r = getRandomArbitrary(offset_a, radius_a);
+			var d = getRandomArbitrary(degreeToRadian(fromAngle_a), degreeToRadian(toAngle_a)); // random radian angle number from fromAngle_a to toAngle_a
+			var x = originX_a + r * Math.cos(d);
+			var y = originY_a + r * Math.sin(d);
+
+			//ctx_a.strokeRect(x,y,1,1);
+			ctx_a.lineWidth = 1;
+			ctx_a.fillRect(x,y,.75,.75);
+			/*ctx_a.beginPath();
+			ctx_a.arc(x, y, pointSize_a, 0, 2 * Math.PI);
+			ctx_a.fill();*/
+		}
+
+		function getRandomArbitrary(min, max) { // returns a random number from min (included) to max (excluded)
+			return Math.random() * (max - min) + min;
+		}
+
+		function getRndInteger(min, max) { // returns a random integer from min to max, both included
+			return Math.floor(Math.random() * (max - min + 1) ) + min;
+		}
+
+		// const delay = ms => new Promise(res => setTimeout(res, ms));
+		function delay (ms) {
+			return new Promise(res => setTimeout(res, ms));
+		}
+
+		async function drawRandomPointsInRing(count_a,delay_a=0) {
+			for (let i=0; i < count_a; i++) {
+				if (delay_a) await delay(getRndInteger(0,delay_a));
+				//canvasACtx_g.fillStyle = (getRndInteger(0,1) == 0) ? "DarkGoldenRod" : "LightGoldenRodYellow";
+				switch(getRndInteger(1,4)) {
+					case 1: canvasACtx_g.fillStyle = "PaleGoldenRod"; break;
+					case 2: canvasACtx_g.fillStyle = "LightGoldenRodYellow"; break;
+					case 3: canvasACtx_g.fillStyle = "Snow"; break;
+					case 4: canvasACtx_g.fillStyle = "#f0ebdd"; break;
+				}
+				drawPointInRingAtRandomLocation(canvasACtx_g, originX_g, originY_g, radius_g-1, innerRadius_g+1, fromAngle_g, toAngle_g);
+			}
+
+			/*canvasACtx_g.fillStyle = "darkred";
+			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 0, 0, "O");
+			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 180, 1, "A");
+			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 3*90, 1.2, "B");
+			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 45, 0.5, "C");
+			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 0, 1, "D");*/
+		}
+	</script>
+</body>
+
+</html>

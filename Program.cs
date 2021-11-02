@@ -184,8 +184,7 @@ namespace Test {
 			// *** The other tests ***
 			//TestAsync.Tester.Go(".");
 			//TestDatabase.Tester.Go();
-			var api = new MinimalApi();
-			// TestMisc.Tester.Go();
+			//TestMisc.Tester.Go();
 			//TestJson.Tester.Go(false);
 			// TestLinq.Tester.Go();
 			//TestExtension.Tester.Go();
@@ -195,6 +194,7 @@ namespace Test {
 			//TestCsv();
 			//TestXquery.Tester.Go();
 			//Console.WriteLine(DateTime.Now.Date); // How to havie it is OS format ?
+			var api = new MinimalApi(); // https://localhost:5001/donut
 		}
 
 		static void InitDatabase()
