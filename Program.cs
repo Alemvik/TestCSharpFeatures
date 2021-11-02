@@ -183,7 +183,8 @@ namespace Test {
 
 			// *** The other tests ***
 			//TestAsync.Tester.Go(".");
-			TestDatabase.Tester.Go();
+			//TestDatabase.Tester.Go();
+			var api = new MinimalApi();
 			// TestMisc.Tester.Go();
 			//TestJson.Tester.Go(false);
 			// TestLinq.Tester.Go();
