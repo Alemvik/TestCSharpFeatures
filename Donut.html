@@ -40,15 +40,15 @@
 		 https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/closePath
 		 https://www.youtube.com/watch?v=4y_nmpv-9lI
 	-->
-	<canvas id="myCanvas" width="300" height="300">This browser does not support the HTML5 canvas tag.</canvas>
+	<canvas id="myCanvas" width="400" height="400">This browser does not support the HTML5 canvas tag.</canvas>
 
 	<script>
-		const radius_g = 90, innerRadius_g=28;
-		const pointSize_g = 4;
+		const radius_g = 90, innerRadius_g=65;
+		const pointSize_g = 0;
 		const originX_g = 200;
 		const originY_g = 200;
-		const fromAngle_g = -2 * 15; // 360 is 24 x 15
-		const toAngle_g = 22 * 15;
+		const fromAngle_g = 0; // 360 is 24 x 15
+		const toAngle_g = 360;
 		const canvasA_g = document.getElementById("myCanvas");
 		const canvasACtx_g = canvasA_g.getContext("2d");
 
@@ -57,10 +57,11 @@
 		//canvasACtx_g.fillStyle = "#DB8"; 		//ctx.fillStyle = "rgba(150, 150, 150, 0.85)";//window.getComputedStyle(document.body).getPropertyValue("background-color");
 		// Create gradient
 		var grd = canvasACtx_g.createRadialGradient(originX_g, originY_g, innerRadius_g+1, originX_g, originY_g, radius_g);
-		//grd.addColorStop(0, "#d0c3b6");
-		grd.addColorStop(0.4, "#b9906a");
-		grd.addColorStop(0.7, "#9e734a");
-		grd.addColorStop(1, "#673716");
+		grd.addColorStop(0.25, "#cF909B");
+		grd.addColorStop(0.75, "#FFC0CB");
+		grd.addColorStop(1, "#bF808B");		// grd.addColorStop(0.4, "#dFa0aB");
+		// grd.addColorStop(0.7, "#FFC0CB");
+		// grd.addColorStop(1, "#bF808B");
 		canvasACtx_g.fillStyle = grd;
 		canvasACtx_g.ringSegment(originX_g, originY_g, innerRadius_g, radius_g, fromAngle_g, toAngle_g, true, true);
 		drawRandomPointsInRing(1100,0);
@@ -167,9 +168,9 @@
 				drawPointInRingAtRandomLocation(canvasACtx_g, originX_g, originY_g, radius_g-1, innerRadius_g+1, fromAngle_g, toAngle_g);
 			}
 
-			/*canvasACtx_g.fillStyle = "darkred";
-			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 0, 0, "O");
-			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 180, 1, "A");
+			canvasACtx_g.fillStyle = "pink";
+			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 180, 0.8, " Emvie suck!");
+			/*drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 180, 1, "A");
 			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 3*90, 1.2, "B");
 			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 45, 0.5, "C");
 			drawPoint(canvasACtx_g, originX_g, originY_g, radius_g, pointSize_g, 0, 1, "D");*/

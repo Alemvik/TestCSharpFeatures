@@ -185,15 +185,15 @@ namespace Test {
 			//TestAsync.Tester.Go(".");
 			//TestDatabase.Tester.Go();
 			//TestMisc.Tester.Go();
-			//TestJson.Tester.Go(false);
-			// TestLinq.Tester.Go();
+			TestJson.Tester.Go(false);
+			//TestLinq.Tester.Go();
 			//TestExtension.Tester.Go();
-			// TestSpan.Tester.Go();
-			// TestStream.Tester.Go();
-			//await TestDynamicType.Tester. Go("Alemvik" /*"ElfoCrash"*/); // if you don't use this test, better 
+			//TestSpan.Tester.Go();
+			//TestStream.Tester.Go();
+			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
 			//TestCsv();
 			//TestXquery.Tester.Go();
-			//Console.WriteLine(DateTime.Now.Date); // How to havie it is OS format ?
+			//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 			var api = new MinimalApi(); // https://localhost:5001/donut
 		}
 
