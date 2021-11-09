@@ -182,10 +182,11 @@ namespace Test {
 			for (int i = 0; i < total.Length; i++) Console.WriteLine($"{i,-4}: {total[i],6}{total[i] / Math.Pow(6,dices) * 100,10:0.00}");
 
 			// *** The other tests ***
+			TestRegex.Tester.Go();
 			//TestAsync.Tester.Go(".");
 			//TestDatabase.Tester.Go();
 			//TestMisc.Tester.Go();
-			TestJson.Tester.Go(false);
+			//TestJson.Tester.Go(false);
 			//TestLinq.Tester.Go();
 			//TestExtension.Tester.Go();
 			//TestSpan.Tester.Go();
@@ -194,7 +195,7 @@ namespace Test {
 			//TestCsv();
 			//TestXquery.Tester.Go();
 			//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
-			var api = new MinimalApi(); // https://localhost:5001/donut
+			//var api = new MinimalApi(); // https://localhost:5001/donut
 		}
 
 		static void InitDatabase()

@@ -25,7 +25,7 @@ namespace Test {
 
 			var webHost = new WebHostBuilder()
 				.UseKestrel()
-				.UseUrls("http://*:5000", "https://*:5001")
+				.UseUrls("http://*:5500", "https://*:5501")
 				.ConfigureServices(services => {
 					services.AddCarter();
 				})

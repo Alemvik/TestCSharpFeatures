@@ -20,7 +20,6 @@ namespace TestJson {
 			var pet = new Pet {Name="Emrod", BirthDatetime=DateTime.Parse("2017-12-20 13:12")};
 			var option = new JsonSerializerOptions {
 				PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-				
 			};
 			var petSerializedText = JsonSerializer.Serialize(pet,option);
 			Console.WriteLine($"petSerializedText = \"{petSerializedText}\"\n\n");
@@ -58,7 +57,7 @@ namespace TestJson {
 					new Owner { Name = "Sam Bucca", Pets = new Pet[] { new Pet { Name = "Belle", BirthDatetime=DateTime.Parse("2013-12-20")} }},
 					new Owner { Name = "Thomas Hawk", Pets = new Pet[] { new Pet { Name = "Sweetie", BirthDatetime=DateTime.Parse("2012-12-20")}, new Pet { Name = "Rover", BirthDatetime=DateTime.Parse("2010-12-20")}} }
 				};
-		public static readonly string serializedOwners = "[{\"Name\":\"Alain Trépanier\",\"Pets\":[{\"Name\":\"Miko\",\"Age\":5},{\"Name\":\"Betzie\",\"Age\":2},{\"Name\":\"Émeraude\",\"Age\":6}]},{\"Name\":\"Évie Dutel\",\"Pets\":[{\"Name\":\"Snowball\",\"Age\":1}]},{\"Name\":\"Sam Bucca\",\"Pets\":[{\"Name\":\"Belle\",\"Age\":8}]},{\"Name\":\"Thomas Hawk\",\"Pets\":[{\"Name\":\"Sweetie\",\"Age\":2},{\"Name\":\"Rover\",\"Age\":13}]}]";
+		public static readonly string serializedOwners = "[{\"Name\":\"Alain Trépanier\",\"Pets\":[{\"Name\":\"Miko\",\"BirthDatetime\":\"2020-12-20\",\"Age\":1},{\"Name\":\"Betzie\",\"BirthDatetime\":\"2021-12-20\",\"Age\":0},{\"Name\":\"Émeraude\",\"BirthDatetime\":\"2021-12-20\",\"Age\":0}]},{\"Name\":\"Évie Dutel\",\"Pets\":[{\"Name\":\"Snowball\",\"BirthDatetime\":\"2020-12-20\",\"Age\":1}]},{\"Name\":\"Sam Bucca\",\"Pets\":[{\"Name\":\"Belle\",\"BirthDatetime\":\"2013-12-20\",\"Age\":8}]},{\"Name\":\"Thomas Hawk\",\"Pets\":[{\"Name\":\"Sweetie\",\"BirthDatetime\":\"2012-12-20\",\"Age\":9},{\"Name\":\"Rover\",\"BirthDatetime\":\"2010-12-20\",\"Age\":11}]}]";
 
 		[Benchmark]
 		public string SerializeFromSystemTextJson()
