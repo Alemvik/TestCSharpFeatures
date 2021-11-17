@@ -55,8 +55,9 @@ namespace TestRegex {
 
 		public static bool Fits(string str_a, string pattern_a)
 		{
-			str_a = str_a.Replace('∙', '☥').Replace("{", "").Replace("}", ""); // pattern_a also has that first replacement
+			str_a = Regex.Replace(str_a.Replace('∙', '☥').Replace("{", "").Replace("}", ""),@"\s+"," "); // pattern_a also has that first replacement
 			str_a = Regex.Replace(str_a, @"\r\n|\n\r|\r", "\n"); // pattern_a also has this replacement
+			pattern_a = Regex.Replace(pattern_a,@"\s+"," ");
 			var strLines = str_a.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 			var patLines = pattern_a.Split('\n', StringSplitOptions.RemoveEmptyEntries);
 
@@ -64,11 +65,13 @@ namespace TestRegex {
 
 			for (int l=0; l<strLines.Length ;l++) {
 				strLines[l] = strLines[l].Trim();
+				patLines[l] = patLines[l].Trim();
+
 				int a = patLines[l].IndexOf('{');
 				if (a >= 0) {
 					int b = patLines[l].IndexOf('}', a);
 					if (b>0) {
-						string newPattern = patLines[l].Substring(0,a) + patLines[l].Substring(b+1,patLines[l].Length-b-1);
+						string newPattern = (patLines[l].Substring(0,a) + patLines[l].Substring(b+1,patLines[l].Length-b-1)).Trim();
 						string pat = '^' + Regex.Escape(newPattern).Replace("∙", @"\s*\S+.*") + '$';
 						if (new Regex(pat, RegexOptions.IgnoreCase).IsMatch(strLines[l])) continue;
                   patLines[l] = patLines[l].Replace("{","").Replace("}", "");
