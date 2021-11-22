@@ -194,7 +194,7 @@ namespace Test {
 			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
 			//TestCsv();
 			//TestXquery.Tester.Go();
-			TestComposition.Tester.Go();
+			//TestComposition.Tester.Go();
 			//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 			//var api = new MinimalApi(); // https://localhost:5501/donut
 		}
