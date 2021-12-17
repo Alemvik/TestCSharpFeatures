@@ -3,6 +3,7 @@ https://www.youtube.com/watch?v=ifTF3ags0XI
 https://docs.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code
 https://docs.microsoft.com/en-us/dotnet/core/tools/
 https://docs.microsoft.com/en-us/dotnet/core/install/macos
+https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 https://docs.microsoft.com/en-us/dotnet/core/install/windows?tabs=net50
 https://www.tutorialsteacher.com/core/net-core-command-line-interface
 https://git-scm.com/
@@ -63,7 +64,7 @@ namespace Test {
 			//var po = config.GetValue<ProductOwner>("ProductOwner");
 			if (!Validator.TryValidateObject(po,new ValidationContext(po),new List<ValidationResult>(),true)) throw new Exception("Unable to find all settings");
 			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),config.GetValue<string>("ConsoleForegroundColor"),true);
-			Console.WriteLine($"Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
+			Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH\\hmm}: Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
 
 			{
 				var msg = "Test Dictionary";
@@ -195,6 +196,7 @@ namespace Test {
 			//TestCsv();
 			//TestXquery.Tester.Go();
 			//TestComposition.Tester.Go();
+			TestDeconstruction.Tester.Go();
 			//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 			//var api = new MinimalApi(); // https://localhost:5501/donut
 		}

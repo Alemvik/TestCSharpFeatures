@@ -125,6 +125,7 @@ namespace TestRegex {
 					int b = pat.IndexOf('}', a);
 					if (b>0) {
 						string newPattern = (pat.Substring(0,a) + pat.Substring(b+1,pat.Length-b-1)).Trim();
+						newPattern = Regex.Replace(newPattern,@"[ \t]"," ");
 						newPattern = '^' + Regex.Escape(newPattern).Replace("∙", @"\s*\S+.*") + '$';
 						if (new Regex(newPattern, RegexOptions.IgnoreCase).IsMatch(str)) return true;
 						eff = pat.Replace("{","").Replace("}", "");
