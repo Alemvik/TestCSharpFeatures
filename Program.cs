@@ -124,15 +124,13 @@ namespace Test {
 				foreach (var ds in dataSources) Console.WriteLine($"{ds}");
 			}
 
-			// Dictionary to list of System.ValueTuple
 			{
-				var msg = "Test Dictionary to System.ValueTuple";
+				var msg = "Test Dictionary to list of System.ValueTuple";
 				Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 				List<(long a, int b)> tuples = (new Dictionary<long,int>() { { 1L,1 },{ 2L,2 } }).Select(x => (x.Key, x.Value)).ToList();
 				foreach (var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})");
 			}
 
-			// Test System.ValueTuple
 			{
 				var msg = "Test System.ValueTuple";
 				Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
@@ -140,7 +138,6 @@ namespace Test {
 				foreach (var item in dataSources) Console.WriteLine($"{item}");
 			}
 
-			// Test System.ValueTuple
 			{
 				var msg = "Test linq's SelectMany";
 				Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
@@ -150,6 +147,62 @@ namespace Test {
 				Console.Write("\n");
 			}
 
+			// *** The other tests ***
+			//TestRegex.Tester.Go();
+			//TestAsync.Tester.Go(".");
+			//TestDatabase.Tester.Go();
+			//TestMisc.Tester.Go();
+			//TestJson.Tester.Go(false);
+			//TestLinq.Tester.Go();
+			//TestExtension.Tester.Go();
+			//TestSpan.Tester.Go();
+			//TestStream.Tester.Go();
+			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
+			//TestCsv();
+			//TestXquery.Tester.Go();
+			//TestComposition.Tester.Go();
+			TestDeconstruction.Tester.Go();
+			//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
+			//var api = new MinimalApi(); // https://localhost:5501/donut
+		}
+
+		static void InitDatabase()
+		{
+			DbProviderFactories.RegisterFactory("MySql.Data.MySqlClient", MySql.Data.MySqlClient.MySqlClientFactory.Instance);
+
+			//Db.Init(new Emvie.DataSource[] { new("MySqlSrvA", "MySql.Data.MySqlClient", "DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq;program_name=test") });
+
+			List<(string nme, string ado, string con)> dataSources = config.GetSection("DataSources")
+				.Get<Dictionary<string, Dictionary<string, string>>[]>() // make sure you included Microsoft.Extensions.Configuration.Binder nuget package
+				.SelectMany(i => i)
+				.Select(i => ValueTuple.Create(i.Key, i.Value.First().Key, i.Value.First().Value))
+				.ToList();
+			Db.Init(dataSources);
+		}
+
+		static void TestCsv()
+		{
+			Console.WriteLine($"\n--- TestCsv {new String('-',50)}\n");
+			DataTable tbl;
+			using (var sr = new StreamReader("Test.csv")) tbl = ConvertCsvToDataTable(sr,new string[] { "first","last","birth date" });
+			// var ms = new MemoryStream();
+			// using (FileStream fs = new FileStream("Test.csv", FileMode.Open, FileAccess.Read)) fs.CopyTo(ms);
+			// ms.Seek(0, SeekOrigin.Begin);
+			// using (var sr = new StreamReader(ms)) tbl = ConvertCsvToDataTable(sr, new string[] { "first", "last", "birth date" });
+			foreach (DataColumn c in tbl.Columns) Console.Write($"{c.ColumnName,-20}"); Console.Write($"\n{new String('-',20 * tbl.Columns.Count)}\n");
+			foreach (DataRow r in tbl.Rows) {
+				foreach (DataColumn c in tbl.Columns) Console.Write($"{r[c.Ordinal],-20}");
+				Console.Write("\n");
+			}
+			Console.WriteLine($"tbl.Columns.Count = {tbl.Columns.Count}, tbl.Rows.Count = {tbl.Rows.Count}");
+			string csv = tbl.ToCsv();
+			Console.ForegroundColor = ConsoleColor.Magenta;
+			Console.Write($"\n---\n{csv}\n---\n");
+			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),config.GetValue<string>("ConsoleForegroundColor"),true);
+		}
+
+		public static void DiceProbabilities()
+		{
 			const int dices = 1;
 			var result = new List<int[]>();
 			result.Add(new int[dices]); // add first combination
@@ -181,58 +234,6 @@ namespace Test {
 			}
 			Console.Write("\n----\n");
 			for (int i = 0; i < total.Length; i++) Console.WriteLine($"{i,-4}: {total[i],6}{total[i] / Math.Pow(6,dices) * 100,10:0.00}");
-
-			// *** The other tests ***
-			TestRegex.Tester.Go();
-			//TestAsync.Tester.Go(".");
-			//TestDatabase.Tester.Go();
-			//TestMisc.Tester.Go();
-			//TestJson.Tester.Go(false);
-			//TestLinq.Tester.Go();
-			//TestExtension.Tester.Go();
-			//TestSpan.Tester.Go();
-			//TestStream.Tester.Go();
-			//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
-			//TestCsv();
-			//TestXquery.Tester.Go();
-			//TestComposition.Tester.Go();
-			TestDeconstruction.Tester.Go();
-			//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
-			//var api = new MinimalApi(); // https://localhost:5501/donut
-		}
-
-		static void InitDatabase()
-		{
-			DbProviderFactories.RegisterFactory("MySql.Data.MySqlClient", MySql.Data.MySqlClient.MySqlClientFactory.Instance);
-
-			//Db.Init(new Emvie.DataSource[] { new("MySqlSrvA", "MySql.Data.MySqlClient", "DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq;program_name=test") });
-
-			List<(string nme, string ado, string con)> dataSources = config.GetSection("DataSources")
-				.Get<Dictionary<string, Dictionary<string, string>>[]>() // make sure you included Microsoft.Extensions.Configuration.Binder nuget package
-				.SelectMany(i => i)
-				.Select(i => ValueTuple.Create(i.Key, i.Value.First().Key, i.Value.First().Value))
-				.ToList();
-			Db.Init(dataSources);
-		}
-		static void TestCsv()
-		{
-			Console.WriteLine($"\n--- TestCsv {new String('-',50)}\n");
-			DataTable tbl;
-			using (var sr = new StreamReader("Test.csv")) tbl = ConvertCsvToDataTable(sr,new string[] { "first","last","birth date" });
-			// var ms = new MemoryStream();
-			// using (FileStream fs = new FileStream("Test.csv", FileMode.Open, FileAccess.Read)) fs.CopyTo(ms);
-			// ms.Seek(0, SeekOrigin.Begin);
-			// using (var sr = new StreamReader(ms)) tbl = ConvertCsvToDataTable(sr, new string[] { "first", "last", "birth date" });
-			foreach (DataColumn c in tbl.Columns) Console.Write($"{c.ColumnName,-20}"); Console.Write($"\n{new String('-',20 * tbl.Columns.Count)}\n");
-			foreach (DataRow r in tbl.Rows) {
-				foreach (DataColumn c in tbl.Columns) Console.Write($"{r[c.Ordinal],-20}");
-				Console.Write("\n");
-			}
-			Console.WriteLine($"tbl.Columns.Count = {tbl.Columns.Count}, tbl.Rows.Count = {tbl.Rows.Count}");
-			string csv = tbl.ToCsv();
-			Console.ForegroundColor = ConsoleColor.Magenta;
-			Console.Write($"\n---\n{csv}\n---\n");
-			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),config.GetValue<string>("ConsoleForegroundColor"),true);
 		}
 	}
 }
