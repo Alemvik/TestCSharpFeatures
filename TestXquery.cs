@@ -42,87 +42,87 @@ using System.Xml.Xsl;
 
 using Alemvik;
 
-namespace TestXquery {
-	static class Tester {
-		public static void Go()
-		{
-			var msg = "TestXquery";
-			Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+namespace TestXquery;
 
-			XDocument srcTree = new XDocument(
-				new XComment("This is a comment"),
-				new XElement("Root",
-					new XElement("Child1", "data1"),
-					new XElement("Child2", "data2"),
-					new XElement("Child3", "data3"),
-					new XElement("Child2", "data4"),
-					new XElement("Info5", "info5"),
-					new XElement("Info6", "info6"),
-					new XElement("Info7", "info7"),
-					new XElement("Info8", "info8")
-				)
-			);
+static class Tester {
+	public static void Go()
+	{
+		var msg = "TestXquery";
+		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
-			XDocument doc = new XDocument(
-				new XComment("This is a comment"),
-				new XElement("Root",
-					from el in srcTree.Element("Root").Elements()
-					where ((string)el).StartsWith("data")
-					select el
-				)
-			);
-			Console.WriteLine(doc);
+		XDocument srcTree = new XDocument(
+			new XComment("This is a comment"),
+			new XElement("Root",
+				new XElement("Child1", "data1"),
+				new XElement("Child2", "data2"),
+				new XElement("Child3", "data3"),
+				new XElement("Child2", "data4"),
+				new XElement("Info5", "info5"),
+				new XElement("Info6", "info6"),
+				new XElement("Info7", "info7"),
+				new XElement("Info8", "info8")
+			)
+		);
 
-			XElement root = XElement.Load("ExampleExcel2003FormatSmaller.xml");
-			//XDocument root = XDocument.Load("ExampleExcel2003FormatSmaller.xml");
-			XNamespace urn="urn:schemas-microsoft-com:office:spreadsheet"; 
-			XElement sheet = root.Element(urn+"Worksheet");
-    		//Console.WriteLine(sheet);
+		XDocument doc = new XDocument(
+			new XComment("This is a comment"),
+			new XElement("Root",
+				from el in srcTree.Element("Root").Elements()
+				where ((string)el).StartsWith("data")
+				select el
+			)
+		);
+		Console.WriteLine(doc);
 
-			IEnumerable<XElement> elems =	root.Descendants(urn+"Worksheet").Where(x =>
+		XElement root = XElement.Load("ExampleExcel2003FormatSmaller.xml");
+		//XDocument root = XDocument.Load("ExampleExcel2003FormatSmaller.xml");
+		XNamespace urn="urn:schemas-microsoft-com:office:spreadsheet"; 
+		XElement sheet = root.Element(urn+"Worksheet");
+		//Console.WriteLine(sheet);
+
+		IEnumerable<XElement> elems =	root.Descendants(urn+"Worksheet").Where(x =>
+			x.Attribute(urn+"Name")?.Value.ToLower() == "report"
+		);
+
+		Console.WriteLine(TriOptimaFxRateToCsv("ExampleExcel2003FormatSmaller.xml"));
+
+		//var sheet = (from e in root.Element("Worksheet").Elements()select e);
+		//Console.WriteLine(sheet);
+		//Console.WriteLine(root);
+	}
+
+	// Example: var csv = XmlToCsv(XElement.Load("Excel2003Format.xml"));
+	// public static string XmlToCsv(XElement element_a, string path_a, int colCount_a=0, string nameSpace_a="")
+	// {
+	// 	XNamespace urn = nameSpace_a;
+
+	// }
+
+	static (int count, string csv) TriOptimaFxRateToCsv(string pathFilename_a)
+	{
+		XElement root = XElement.Load(pathFilename_a);
+		XNamespace urn="urn:schemas-microsoft-com:office:spreadsheet"; 
+		XElement sheet = root.Element(urn+"Worksheet");
+
+		// Under Worksheet(Name=Report) / Table, get all rows that has only 4 columns
+		var rows = root.Descendants(urn+"Worksheet").Where(x => // Descendants looks in all levels
 				x.Attribute(urn+"Name")?.Value.ToLower() == "report"
-			);
+			)
+			.SingleOrDefault()
+			.Elements(urn+"Table") // Elements finds only those elements that are direct descendents
+			.SingleOrDefault()
+			.Elements(urn+"Row")
+			.Where(x => x.Elements(urn+"Cell").Count() == 4);
 
-			Console.WriteLine(TriOptimaFxRateToCsv("ExampleExcel2003FormatSmaller.xml"));
-
-			//var sheet = (from e in root.Element("Worksheet").Elements()select e);
-			//Console.WriteLine(sheet);
-			//Console.WriteLine(root);
+		var csv = new StringBuilder();
+		foreach(XElement row in rows) {
+			var columns = row.Elements(urn+"Cell").Elements(urn+"Data");
+			foreach(XElement col in columns) if (col.Value.Contains(',')) {
+				csv.Append($"\"{col.Value.Replace("\"","\"\"")}\",");
+			} else csv.Append(col.Value+',');
+			csv[csv.Length-1]='\n'; // replace last comma by a newline
 		}
 
-		// Example: var csv = XmlToCsv(XElement.Load("Excel2003Format.xml"));
-		// public static string XmlToCsv(XElement element_a, string path_a, int colCount_a=0, string nameSpace_a="")
-		// {
-		// 	XNamespace urn = nameSpace_a;
-
-		// }
-
-		static (int count, string csv) TriOptimaFxRateToCsv(string pathFilename_a)
-		{
-			XElement root = XElement.Load(pathFilename_a);
-			XNamespace urn="urn:schemas-microsoft-com:office:spreadsheet"; 
-			XElement sheet = root.Element(urn+"Worksheet");
-
-			// Under Worksheet(Name=Report) / Table, get all rows that has only 4 columns
-			var rows = root.Descendants(urn+"Worksheet").Where(x => // Descendants looks in all levels
-					x.Attribute(urn+"Name")?.Value.ToLower() == "report"
-				)
-				.SingleOrDefault()
-				.Elements(urn+"Table") // Elements finds only those elements that are direct descendents
-				.SingleOrDefault()
-				.Elements(urn+"Row")
-				.Where(x => x.Elements(urn+"Cell").Count() == 4);
-
-			var csv = new StringBuilder();
-			foreach(XElement row in rows) {
-				var columns = row.Elements(urn+"Cell").Elements(urn+"Data");
-				foreach(XElement col in columns) if (col.Value.Contains(',')) {
-					csv.Append($"\"{col.Value.Replace("\"","\"\"")}\",");
-				} else csv.Append(col.Value+',');
-				csv[csv.Length-1]='\n'; // replace last comma by a newline
-			}
-
-			return (rows.Count()-1,csv.ToString());
-		}
+		return (rows.Count()-1,csv.ToString());
 	}
 }
