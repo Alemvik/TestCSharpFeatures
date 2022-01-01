@@ -48,6 +48,12 @@ using static Alemvik.Convertion; // To get the DataTable ToCsv extension
 
 namespace Test;
 
+public static class IntExtension { // Extension methods must be defined in a static class.
+	public static bool Between(this int value, int from, int to) {
+		return value >= from && value <= to;
+	}
+}
+
 public class ProductOwner {
 	[Range(5,15)]
 	public int Id { get; set; }
@@ -57,13 +63,29 @@ public class ProductOwner {
 	public override string ToString() => $"Owner's name is {Name}, his id is {Id} and his start date is {StartDate.ToString("yyyy-MM-dd")}\n";
 }
 
-public class Program {
+public unsafe class Program {
 	public static readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-	static async Task Main(string[] args_a)
+	static async Task Main(string[] args)
 	{
-		AdventOfCode2021_15A();
-		return;
+		if (args.Length > 0) {
+			int start=0;
+			if (args.Length > 1) int.TryParse(args[1], out start);
 
+			if (int.TryParse(args[0], out int size)) {
+				var matrixRandom = new int[size,size];
+				Random rnd = new Random();
+				for (int y=0; y<size ;y++) for (int x=0; x<size ;x++) matrixRandom[y,x] = rnd.Next(10); // random int betwwen 0 inclusively and 9 inclusively
+				AdventOfCode2021_15A(matrixRandom,start);
+			} else {
+				var lines = System.IO.File.ReadAllText(args[0]).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+				var matrix = new int[lines.Length,lines.Length];
+				fixed (int* p = matrix) new Span<int>(p, matrix.Length).Fill(100); // requires to be inside unsafe methods
+				for (int y=0; y<lines.Length ;y++) for (int x=0; x<lines.Length ;x++) if (lines[y][x]>='0' && lines[y][x]<='9') matrix[y,x] = lines[y][x] - '0';
+				AdventOfCode2021_15A(matrix,start);
+			}
+			return;
+		}
+	
 		InitDatabase();
 
 		// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#getvalue
@@ -159,7 +181,7 @@ public class Program {
 		//TestAsync.Tester.Go(".");
 		//TestDatabase.Tester.Go();
 		//TestMisc.Tester.Go();
-		TestJson.Tester.Go(false);
+		//TestJson.Tester.Go(false);
 		//TestLinq.Tester.Go();
 		//TestExtension.Tester.Go();
 		//TestSpan.Tester.Go();
@@ -168,7 +190,7 @@ public class Program {
 		//TestCsv();
 		//TestXquery.Tester.Go();
 		//TestComposition.Tester.Go();
-		TestDeconstruction.Tester.Go();
+		//TestDeconstruction.Tester.Go();
 		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 		var api = new MinimalApi(); // https://localhost:5501/donut
 	}
@@ -243,15 +265,104 @@ public class Program {
 		for (int i = 0; i < total.Length; i++) Console.WriteLine($"{i,-4}: {total[i],6}{total[i] / Math.Pow(6,dices) * 100,10:0.00}");
 	}
 
-	static void AdventOfCode2021_15A()
+	/*public static unsafe void FillMultiDimArray<T>(this Array array, T value)
 	{
-		var lines = System.IO.File.ReadAllText("15b.txt").Split('\n');
+		fixed (int* a = Array.Fill<int>() {
+			var span = new Span<T>(array, array.Length);
+			span.Fill(value);
+		}
+	}*/
+
+	static unsafe void AdventOfCode2021_15A(int[,] matrix, int start=0)
+	{
+		int wh = matrix.GetLength(0);
+		if (wh != matrix.GetLength(1)) throw new ArgumentException("matrix must be square");
+		if (!start.Between(-wh+1,wh-1)) throw new ArgumentException($"start must be between {-wh+1} inclusively and {wh-1} inclusively");
+
+		var sw = Stopwatch.StartNew();
+		var perimeters = new (List<(int y,int x)> path, int risk)[3,2*wh-1]; //Array.Fill(horA,(null,0));
+		var innerPerimeterIx = 0;
+		var outterPerimeterIx = 1;
+		var outterCopyIx = 2;
+		perimeters[innerPerimeterIx,0] = (new List<(int y,int x)>() {(wh-1,wh-1)},matrix[wh-1,wh-1]);
+		for (int x=0; x<wh-1 ;x++) {// with wh=5: 0123
+			int innerPerimeterLength = 2 * x + 1; // with wh=5: 1,3,5,7
+			int outterPerimeterLength = innerPerimeterLength + 2;
+			int innerPerimeterWidth = (innerPerimeterLength + 1) / 2;
+			int outterPerimeterWidth = (outterPerimeterLength + 1) / 2;
+			(int y, int x) innerPerimeterLocation = (wh-innerPerimeterWidth,wh-innerPerimeterWidth);
+			(int y, int x) outterPerimeterLocation = (innerPerimeterLocation.y-1,innerPerimeterLocation.x-1);
+
+			for (int i=0; i<outterPerimeterWidth ;i++) perimeters[outterCopyIx,i].risk = matrix[wh-1-i,wh-x-2];
+			for (int i=0; i<x+1 ;i++) perimeters[outterCopyIx,outterPerimeterWidth+i].risk = matrix[wh-outterPerimeterWidth,wh-1-x+i];
+
+			var io = new int[outterPerimeterLength];
+			io[outterPerimeterWidth] = io[outterPerimeterWidth-1] = io[outterPerimeterWidth-2] = innerPerimeterWidth-1;
+			for (int i=outterPerimeterWidth+1; i<outterPerimeterLength ;i++) io[i] = io[i-1]+1;
+			for (int i=outterPerimeterWidth-3; i>=0 ;i--) io[i] = io[i+1]-1;
+
+			for (int o=0; o<outterPerimeterLength ;o++) { // botomleft to upperright
+				perimeters[outterPerimeterIx,o].risk = int.MaxValue;
+				int ii=0;
+				for (int i=0; i<innerPerimeterLength ;i++) {
+					int r = perimeters[outterCopyIx,o].risk + perimeters[innerPerimeterIx,i].risk;
+					var path = new List<(int y, int x)>();
+					path.Add(Location(outterPerimeterLocation,outterPerimeterWidth,o));
+
+					// Reached the two lefttop corners
+					if (i==innerPerimeterWidth-1 && o==outterPerimeterWidth-1) {
+						if (perimeters[outterCopyIx,o-1].risk <= perimeters[outterCopyIx,o+1].risk) {
+							r += perimeters[outterCopyIx,o-1].risk;
+							path.Add((outterPerimeterLocation.y+1,outterPerimeterLocation.x));
+						} else {
+							r += perimeters[outterCopyIx,o+1].risk;
+							path.Add((outterPerimeterLocation.y,outterPerimeterLocation.x+1));
+						}
+					} else {
+						int l = (o>=outterPerimeterWidth ? Array.LastIndexOf(io,i) : Array.IndexOf(io,i)) - o;
+						if (l>0) for (int k=0; k<l ;k++) {r += perimeters[outterCopyIx,o+k+1].risk; path.Add(Location(outterPerimeterLocation,outterPerimeterWidth,o+k+1));}
+						else for (int k=0; k<-l ;k++) {r += perimeters[outterCopyIx,o-k-1].risk; path.Add(Location(outterPerimeterLocation,outterPerimeterWidth,o-k-1));}
+					}
+
+					if (r < perimeters[outterPerimeterIx,o].risk || (r == perimeters[outterPerimeterIx,o].risk && path.Count < perimeters[outterPerimeterIx,o].path.Count)) {
+						perimeters[outterPerimeterIx,o].risk = r;
+						perimeters[outterPerimeterIx,o].path = path;
+						ii=i;
+					}
+				}
+
+				perimeters[outterPerimeterIx,o].path.AddRange(perimeters[innerPerimeterIx,ii].path);
+			}
+
+			innerPerimeterIx ^= 1;
+			outterPerimeterIx ^= 1;
+		}
+
+		var startIx = start<0 ? wh+start-1 : wh+start-1;
+		for (int y=0; y<wh ;y++) {
+			for (int x=0; x<wh ;x++) if (matrix[y,x]==100) Console.Write("￭"); else if (perimeters[innerPerimeterIx,startIx].path.Contains((y,x))) Console.Write("∙"); else Console.Write($"{matrix[y,x],1}"); // https://docs.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting
+			Console.Write('\n');
+		}
+		Console.WriteLine($"\n{DateTime.Now:yyyy-MM-dd (HH\\hmm)}: Duration for {wh} x {wh} is {sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}; LowestRisk={perimeters[innerPerimeterIx,startIx].risk-perimeters[outterCopyIx,startIx].risk} ({perimeters[innerPerimeterIx,startIx].path.Count-1} moves); start={start}\n");
+
+		// for (int i=0; i<wh ;i++) {
+		// 	Console.Write();
+		// }
+
+		(int y,int x) Location((int y,int x) location, int width, int x) {
+			if (x<width) return (location.y+(width-x-1),location.x);
+			return (location.y,location.x+(x+1-width));
+		}
+	}
+
+	static void AdventOfCode2021_15Ab(string file)
+	{
+		var lines = System.IO.File.ReadAllText(file).Split('\n');
 
 		int height = lines.Length;
 		int width = lines[0].Length;
 
 		var matrix = new int[height,width];
-		//var matrixB = new (List<(int y,int x)> path, int risk)[height,width];
 		for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) matrix[y,x] = lines[y][x]>='0' && lines[y][x]<='9' ? lines[y][x] - '0' : -1;
 
 		for (int y=0; y<height ;y++) {
@@ -259,26 +370,32 @@ public class Program {
 			Console.Write('\n');
 		}
 
-		int lowestRisk = int.MaxValue;
-		int lastValue = matrix[height-1,width-1];
-		int iterationCount = 0;
-		int pathCount = 0;
+		var result = FindBestPath(matrix, (0,0), (height-1,width-1));
+	}
+
+	static (int risk, List<(int y,int x)> path) FindBestPath(int [,] matrix, (int y,int x) begin, (int y,int x) end)
+	{
+		int height = matrix.GetLength(0), width = matrix.GetLength(1);
+		int lowestRisk = int.MaxValue, iterationCount = 0, pathCount = 0;
 		var shortestPath = new List<(int y,int x)>();
 		var sw = Stopwatch.StartNew();
-		MoveTo((0,0),-matrix[0,0],new List<(int y,int x)>());
-		Console.WriteLine($"\nDuration for {height} x {width} is {sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}; LowestRisk={lowestRisk} ({shortestPath.Count}); iterationCount={iterationCount}; pathCount={pathCount}");
 
+		MoveTo(begin,0,new List<(int y,int x)>());
+
+		Console.WriteLine($"\nDuration for {height} x {width} is {sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}; LowestRisk={lowestRisk} ({shortestPath.Count}); iterationCount={iterationCount}; pathCount={pathCount}");
 		for (int y=0; y<height ;y++) {
 			for (int x=0; x<width ;x++) if (matrix[y,x]==-1) Console.Write("￭"); else if (shortestPath.Contains((y,x))) Console.Write("∙"); else Console.Write($"{matrix[y,x],1}"); // https://docs.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting
 			Console.Write('\n');
 		}
 
-		void MoveTo((int y, int x) l, int a, List<(int y,int x)> p) {
-			if (l.y<0 || l.y>=height || l.x<0 || l.x>=width || matrix[l.y,l.x]==-1 || p.Contains((l.y,l.x))) return;
+		return (lowestRisk,shortestPath);
+
+		void MoveTo((int y, int x) location, int risk, List<(int y,int x)> path) {
+			if (location.y<0 || location.y>=height || location.x<0 || location.x>=width || matrix[location.y,location.x]==-1 || path.Contains((location.y,location.x))) return;
 
 			iterationCount++;
-			a += matrix[l.y,l.x];
-			p.Add(l);
+			risk += matrix[location.y,location.x];
+			path.Add(location);
 
 			/*Console.Write('\n');
 			for (int y=0; y<height ;y++) {
@@ -287,98 +404,25 @@ public class Program {
 			}
 			Console.ReadLine();*/
 
-			if (l.y==height-1 && l.x==width-1) {
+			if (location == end) {
 				pathCount++;
-				if (a <= lowestRisk) {
-					if (a < lowestRisk || p.Count < shortestPath.Count)  {
-						shortestPath = p;
-						Console.Write($"\n{DateTime.Now:HH\\hmm} ({sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}) {a} ({p.Count}) "); //foreach (var v in p) Console.Write($"({v.y},{v.x})"); Console.Write('\n');
+				if (risk <= lowestRisk) {
+					if (risk < lowestRisk || path.Count < shortestPath.Count)  {
+						shortestPath = path;
+						Console.Write($"\n{DateTime.Now:HH\\hmm} ({sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}) {risk} ({path.Count}) "); //foreach (var v in p) Console.Write($"({v.y},{v.x})"); Console.Write('\n');
 						Console.Beep();
 					}
-					lowestRisk = a;
+					lowestRisk = risk;
 				}
 				return;
 			}
 
-			if (a + lastValue > lowestRisk) return; // no need to go further since we already have found better path than this path segment
+			if (risk + matrix[end.y,end.x] > lowestRisk) return; // no need to go further since we already have found better path than this path segment
 
-			MoveTo((l.y,l.x+1), a, new List<(int y,int x)>(p));
-			MoveTo((l.y+1,l.x), a, new List<(int y,int x)>(p));
-			MoveTo((l.y,l.x-1), a, new List<(int y,int x)>(p));
-			MoveTo((l.y-1,l.x), a, new List<(int y,int x)>(p));
+			MoveTo((location.y,location.x+1), risk, new List<(int y,int x)>(path));
+			MoveTo((location.y+1,location.x), risk, new List<(int y,int x)>(path));
+			MoveTo((location.y,location.x-1), risk, new List<(int y,int x)>(path));
+			MoveTo((location.y-1,location.x), risk, new List<(int y,int x)>(path));
 		}
-		
-		/*(List<(int y,int x)> path, int risk) MoveTo((int y, int x) l, int a, List<(int y,int x)> p) {
-			if (l.y<0 || l.y>=height || l.x<0 || l.x>=width || matrix[l.y,l.x]<0 || p.Contains((l.y,l.x))) return (p,int.MaxValue);
-
-			iterationCount++;
-			a += matrix[l.y,l.x];
-			p.Add(l);
-
-			if (l.y==height-1 && l.x==width-1) {
-				pathCount++;
-				if (a <= lowestRisk) {
-					if (a < lowestRisk || p.Count < shortestPath.Count)  {
-						shortestPath = p;
-						Console.Write($"\n{DateTime.Now:HH\\hmm} ({sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}) {a} ({p.Count}) "); //foreach (var v in p) Console.Write($"({v.y},{v.x})"); Console.Write('\n');
-						Console.Beep();
-					}
-					lowestRisk = a;
-				}
-				return (p,a);
-			}
-
-			//if (a+lastValue > lowestRisk) return (p,-1); // no need to go further since we already have found better path than this path segment
-
-			/*Parallel.Invoke(
-				() => MoveTo((l.y,l.x+1), a, new List<(int y,int x)>(p)),
-				() => MoveTo((l.y+1,l.x), a, new List<(int y,int x)>(p)),
-				() => MoveTo((l.y,l.x-1), a, new List<(int y,int x)>(p)),
-				() => MoveTo((l.y-1,l.x), a, new List<(int y,int x)>(p))
-			);* /
-
-			var results = new (List<(int y,int x)> path, int risk)[4];
-			results[0] = MoveTo((l.y,l.x+1), a, new List<(int y,int x)>(p));
-			results[1] = MoveTo((l.y+1,l.x), a, new List<(int y,int x)>(p));
-			results[2] = MoveTo((l.y,l.x-1), a, new List<(int y,int x)>(p));
-			results[3] = MoveTo((l.y-1,l.x), a, new List<(int y,int x)>(p));
-
-			/*Array.Sort(results, (x,y) => {
-				if (x.risk == y.risk) return x.path.Count < y.path.Count ? 1 : -1;
-				return x.risk < y.risk ? 1 : -1;
-			});* /
-foreach (var v in p) Console.Write($"({v.y},{v.x})"); Console.Write('\n');
-			Console.Write($"@({l.y},{l.x}) ({a}): "); foreach (var result in results) Console.Write($"{result.risk} ({result.path.Count}) ");Console.Write('\n');
-Console.ReadLine();
-			matrixB[l.y,l.x] = results[0];
-
-			return (p,int.MaxValue);
-		}*/
-
-		/*void MoveTo((int y, int x) l, int a, List<(int y,int x)> p) {
-			iterationCount++;
-			a += matrix[l.y,l.x];
-			p.Add(l);
-
-			if (l.y==height-1 && l.x==width-1) {
-				pathCount++;
-				if (a <= lowestRisk) {
-					if (a < lowestRisk || p.Count < shortestPath.Count)  {
-						shortestPath = p;
-						Console.Write($"\n{DateTime.Now:HH\\hmm} ({sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}) {a} ({p.Count}) "); //foreach (var v in p) Console.Write($"({v.y},{v.x})"); Console.Write('\n');
-						Console.Beep();
-					}
-					lowestRisk = a;
-				}
-				return;
-			}
-
-			if (a+lastValue > lowestRisk) return; // no need to go further since we already have found better path than this path segment
-
-			if (l.x+1 < width && matrix[l.y,l.x+1]>=0 && !p.Contains((l.y,l.x+1))) MoveTo((l.y,l.x+1), a, new List<(int y,int x)>(p));
-			if (l.y+1 < height && matrix[l.y+1,l.x]>=0 && !p.Contains((l.y+1,l.x))) MoveTo((l.y+1,l.x), a, new List<(int y,int x)>(p));
-			if (l.x>0 && matrix[l.y,l.x-1]>=0 && !p.Contains((l.y,l.x-1))) MoveTo((l.y,l.x-1), a, new List<(int y,int x)>(p));
-			if (l.y>0 && matrix[l.y-1,l.x]>=0 && !p.Contains((l.y-1,l.x))) MoveTo((l.y-1,l.x), a, new List<(int y,int x)>(p));
-		}*/
 	}
 }

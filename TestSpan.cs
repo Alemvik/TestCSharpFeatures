@@ -11,7 +11,7 @@ using Alemvik;
 namespace TestSpan; // https://www.youtube.com/watch?v=FM5dpxJMULY
 
 static class Tester {
-	public static void Go()
+	public static unsafe void Go()
 	{
 		var msg = "TestSpan";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
@@ -20,6 +20,14 @@ static class Tester {
 		Console.WriteLine($"year = {dateParts.year}, month={dateParts.month:00}, day={dateParts.day:00}");
 		string sentence = "\taaa\tbbb ccc ddd\t    eee  ";
 		Console.WriteLine($"\"{sentence}\"'s middle word is \"{sentence.MiddleWord().ToString()}\"");
+
+		var matrix = new int[6,7];
+		//for (int y=0; y<wh ;y++) for (int x=0; x<wh ;x++) matrix[y,x] = -1;
+		fixed (int* p = matrix) new Span<int>(p, matrix.Length).Fill(1); // requires to be inside unsafe methods
+		for (int y=0; y<matrix.GetLength(0) ;y++) {
+			for (int x=0; x<matrix.GetLength(1) ;x++) if (matrix[y,x]==-1) Console.Write("￭"); else Console.Write($"{matrix[y,x],1}"); // https://docs.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting
+			Console.Write('\n');
+		}
 	}
 	static (int year, int month, int day) GetDateComponents(string sdate_a)
 	{
