@@ -12,7 +12,7 @@ https://www.nuget.org/packages/Jil/
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>false</ImplicitUsings>
-		<NoWarn>CS0162,CS0168,CS8321,CS1998,CS0219</NoWarn>
+		<NoWarn>CS0162,CS0164,CS0168,CS8321,CS1998,CS0219</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>

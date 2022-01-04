@@ -38,7 +38,18 @@ static class Tester {
 
 		IEnumerable<Owner> ownersA = owners.OrderByDescending(x => x.Name).TakeWhile(x => x.Name.Length <= 12); // TakeWhile is not available in Query syntax
 		Console.WriteLine("Sort owners descending then take one until one's name has more then 12 letters: {0}", String.Join("; ", ownersA.Select(x => x.ToString())));
+
+		// See https://docs.microsoft.com/en-us/dotnet/csharp/whats-new/tutorials/ranges-indexes
+		var skipOneTakeThree = owners.Take(1..4).ToArray(); // from 1 to 4-1=3
+		Console.WriteLine($"skipOneTakeThree = {skipOneTakeThree[0]} and {skipOneTakeThree[1]} and {skipOneTakeThree[2]}");
+
+		var lastTwoOwners = owners.Take(^2..).ToArray(); // from -2 and all the ones after ("^2.." is same as "^2..^0")
+		Console.WriteLine($"lastTwoOwners = {lastTwoOwners[0]} and {lastTwoOwners[1]}");
+
+		var allButLastTwoOwners = owners.Take(..^3).ToArray();
+		Console.WriteLine($"allButLastTwoOwners (has {allButLastTwoOwners.Length} items) = {allButLastTwoOwners[0]}");
 	}
+
 	class Pet {
 		public string Name { get; set; }
 		public int Age { get; set; }
@@ -48,6 +59,7 @@ static class Tester {
 			return $"{this.Name} ({this.Age})";
 		}
 	}
+
 	class Owner {
 		public string Name { get; set; }
 		public Pet[] Pets { get; set; }
