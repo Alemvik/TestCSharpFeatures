@@ -69,14 +69,16 @@ public class Program {
 	{
 		if (args.Length > 0) {
 			int start=0;
-			if (args.Length > 1) int.TryParse(args[1], out start);
+			//if (args.Length > 1) int.TryParse(args[1], out start);
 
 			int[,] matrix;
 
-A:			if (int.TryParse(args[0], out int size)) {
-				matrix = new int[size,size];
+A:			if (int.TryParse(args[0], out int height)) {
+				int width = height;
+				if (args.Length > 1) int.TryParse(args[1], out width);
+				matrix = new int[width,height];
 				Random rnd = new Random();
-				for (int y=0; y<size ;y++) for (int x=0; x<size ;x++) matrix[y,x] = rnd.Next(10); // random int betwwen 0 inclusively and 9 inclusively
+				for (int y=0; y<width ;y++) for (int x=0; x<height ;x++) matrix[y,x] = rnd.Next(10); // random int betwwen 0 inclusively and 9 inclusively
 			} else {
 				var lines = System.IO.File.ReadAllText(args[0]).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 				matrix = new int[lines.Length,lines.Length];
@@ -94,15 +96,15 @@ A:			if (int.TryParse(args[0], out int size)) {
 				}*/
 			}
 
-			var sw2 = Stopwatch.StartNew();
+			/*var sw2 = Stopwatch.StartNew();
 			var (risk2, path2) = FindBestPath2(matrix,start);
 			sw2.Stop();
-			Console.Write('\n');PrintMatrix(matrix,risk2,path2,sw2);
+			Console.Write('\n');PrintMatrix(matrix,risk2,path2,sw2);*/
 
 			(int y,int x) srcLoc = (0,0);
-			(int y,int x) dstLoc = (matrix.GetLength(0)-1,matrix.GetLength(0)-1);
+			(int y,int x) dstLoc = (matrix.GetLength(0)-1,matrix.GetLength(1)-1);
 			var sw1 = Stopwatch.StartNew();
-			var (risk, path) = FindBestPath(matrix, srcLoc, dstLoc, 3);
+			var (risk, path) = FindBestPath(matrix, srcLoc, dstLoc);
 
 			//if (int.TryParse(args[0], out int ghr) && (risk2 - risk < 3 /*|| path.Count == path2.Count*/)) goto A;
 
@@ -392,14 +394,13 @@ A:			if (int.TryParse(args[0], out int size)) {
 
 		int minimalRislLocation = matrix.Cast<int>().Min();
 
-		MoveTo(src,-matrix[src.y,src.x],(new List<(int y,int x)>(),(0,0))); // Do not consider the risk of the starting location unless you move there
+		//var archives = new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path, (int y, int x) from)>();
+		return MoveTo(src,-matrix[src.y,src.x],(new List<(int y,int x)>(),(0,0))); // Do not consider the risk of the starting location unless you move there
 
-		return (lowestRiskSoFar,shortestPath);
-
-		void MoveTo((int y, int x) location, int risk, (List<(int y,int x)> path, (int y,int x) max) path) {
+		(int risk, List<(int y,int x)> path) MoveTo((int y, int x) location, int risk, (List<(int y,int x)> path, (int y,int x) max) path) {
 			if (location.y<0 || location.y>=height || location.x<0 || location.x>=width || matrix[location.y,location.x]==int.MaxValue || 
 				path.path.Contains((location.y,location.x)) || 
-				risk + matrix[dst.y,dst.x] + minimalRislLocation * (Math.Abs(location.y-dst.y)+Math.Abs(location.x-dst.x)-1) > lowestRiskSoFar) return;
+				risk + matrix[dst.y,dst.x] + minimalRislLocation * (Math.Abs(location.y-dst.y)+Math.Abs(location.x-dst.x)-1) > lowestRiskSoFar) return (int.MaxValue,null);
 
 			iterationCount++;
 			risk += matrix[location.y,location.x];
@@ -407,37 +408,57 @@ A:			if (int.TryParse(args[0], out int size)) {
 			path.max.y = Math.Max(path.max.y,location.y);
 			path.max.x = Math.Max(path.max.x,location.x);
 
+			/*(int risk, List<(int y,int x)> path,(int y,int x) from) archiveValue;
+			if (archives.TryGetValue(location, out archiveValue) && path.path[^2] != archiveValue.from) {
+				if (archiveValue.risk == int.MaxValue) return (int.MaxValue,null);
+				risk += archiveValue.risk;
+				if (risk > lowestRiskSoFar) return (int.MaxValue,null);
+				path.path.AddRange(archiveValue.path);
+				location = dst;
+			}*/
+
 			if (location == dst) {
 				pathCount++;
 				if (risk <= lowestRiskSoFar) {
 					if (risk < lowestRiskSoFar || path.path.Count < shortestPath.Count)  {
 						shortestPath = path.path;
-						Console.Beep(); Console.Write($"\n{DateTime.Now:HH\\hmm} {risk} ({shortestPath.Count})"); for (int i=0; i<=Math.Min(10,path.path.Count) ;i++) Console.Write($"({path.path[i].y},{path.path[i].x}) "); Console.Write('\n');
+						Console.Beep(); Console.Write($"\n{DateTime.Now:HH\\hmm} {risk} ({shortestPath.Count}): "); for (int i=0; i<Math.Min(20,path.path.Count) ;i++) Console.Write($"({path.path[i].y},{path.path[i].x}) "); Console.Write('\n');
 					}
 					lowestRiskSoFar = risk;
+					return (risk,path.path);
 				}
-				return;
+				return (risk,path.path);//(int.MaxValue,null);
 			}
 
-			if (risk + matrix[dst.y,dst.x] > lowestRiskSoFar) return; // no need to go further since we already have found better path than this path segment
+			if (risk + matrix[dst.y,dst.x] > lowestRiskSoFar) return (int.MaxValue,null); // no need to go further since we already have found better path than this path segment
 
-			MoveTo((location.y,location.x+1), risk, (new List<(int y,int x)>(path.path),path.max));
-			MoveTo((location.y+1,location.x), risk, (new List<(int y,int x)>(path.path),path.max));
+			var right = MoveTo((location.y,location.x+1), risk, (new List<(int y,int x)>(path.path),path.max));
+			var down = MoveTo((location.y+1,location.x), risk, (new List<(int y,int x)>(path.path),path.max));
 
-			//if (path.path.Count>=maxBackSteps+1) 	
-					//for (int i=0; i<path.path.Count ;i++) Console.Write(path.path[i]); Console.Write("\n\n");
-	//Console.WriteLine($"{path.Count} ({maxBackSteps}): ({path[^(maxBackSteps+1)].y},{path[^(maxBackSteps+1)].x}) ({path[^(maxBackSteps+0)].y},{path[^(maxBackSteps+0)].x}) ({location.y},{location.x}) {Math.Max(0,path[^(maxBackSteps+1)].y-location.y) + Math.Max(0,path[^(maxBackSteps+1)].x-location.x)}");
-			if (Math.Max(0,path.max.y-path.path[^1].y) + Math.Max(0,path.max.x-path.path[^1].x) >= maxBackSteps) return;
+			if (Math.Max(0,path.max.y-path.path[^1].y) + Math.Max(0,path.max.x-path.path[^1].x) > maxBackSteps) return (int.MaxValue,null);
 
-			MoveTo((location.y,location.x-1), risk, (new List<(int y,int x)>(path.path),path.max));
-			MoveTo((location.y-1,location.x), risk, (new List<(int y,int x)>(path.path),path.max));
+			var left = MoveTo((location.y,location.x-1), risk, (new List<(int y,int x)>(path.path),path.max));
+			var up = MoveTo((location.y-1,location.x), risk, (new List<(int y,int x)>(path.path),path.max));
 
-			bool print = false;
-			Console.Write($"[{lowestRiskSoFar}] ");
-			for (int i=0; i<shortestPath.Count ;i++) if (print || shortestPath[i]==location) {
-				Console.Write(shortestPath[i]);
-				print = true;
-			} Console.Write("\n\n");
+			var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.OrderBy(m => m.risk).First();//.Min();
+			//var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.MinBy(x => x.risk);
+
+			/*if (min.risk != int.MaxValue) {
+				var segment = min.path.SkipWhile(l => l!=location).Skip(1).ToList();
+				var fromLoc = min.path[^(segment.Count+1)];
+				archives[location] = (min.risk-risk,segment,fromLoc);
+				if (location == (5,4) || location == (6,4)) {
+					Console.Write($"\nMinimum risk from {location} arriving from ({fromLoc}) ({min.risk-risk}/{lowestRiskSoFar}): ");
+					for (int i=0; i<segment.Count ;i++) Console.Write(segment[i]);Console.Write(";");
+					for (int i=0; i<min.path.Count ;i++) Console.Write(min.path[i]);
+					Console.Write("\n");
+				}
+			} else {
+				archives[location] = (int.MaxValue,null,(0,0));
+				if (location == (5,4) || location == (6,4)) Console.Write($"\nMinimum risk from {location} ({lowestRiskSoFar}): Voided\n");
+			}*/
+
+			return min;
 		}
 	}
 
@@ -455,7 +476,7 @@ A:			if (int.TryParse(args[0], out int size)) {
 			}
 			Console.Write('\n');
 		}
-		for (int i=0; i<path.Count ;i++) Console.Write(path[i]);
+		//for (int i=0; i<path.Count ;i++) Console.Write(path[i]);
 		Console.WriteLine($"\n{DateTime.Now:yyyy-MM-dd (HH\\hmm)}: Duration for {matrix.GetLength(0)} rows per {matrix.GetLength(1)} columns is {sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}; Risk={risk} ({path.Count-1} moves); srcLoc=({path[0].y},{path[0].x}); dstLoc=({path[path.Count-1].y},{path[path.Count-1].x})\n");
 	}
 }
