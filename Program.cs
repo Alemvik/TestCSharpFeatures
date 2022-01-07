@@ -69,31 +69,34 @@ public class Program {
 	{
 		if (args.Length > 0) {
 			int start=0;
+			int width = 0;
 			//if (args.Length > 1) int.TryParse(args[1], out start);
 
 			int[,] matrix;
 
 A:			if (int.TryParse(args[0], out int height)) {
-				int width = height;
+				width = height;
 				if (args.Length > 1) int.TryParse(args[1], out width);
 				matrix = new int[width,height];
 				Random rnd = new Random();
 				for (int y=0; y<width ;y++) for (int x=0; x<height ;x++) matrix[y,x] = rnd.Next(10); // random int betwwen 0 inclusively and 9 inclusively
 			} else {
 				var lines = System.IO.File.ReadAllText(args[0]).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-				matrix = new int[lines.Length,lines.Length];
+				height = lines.Length;
+				width = lines[0].Length;
+				matrix = new int[height,width];
 				fixed (int* p = matrix) new Span<int>(p, matrix.Length).Fill(int.MaxValue); // requires to be inside unsafe methods
-				for (int y=0; y<lines.Length ;y++) for (int x=0; x<lines.Length ;x++) if (lines[y][x]>='0' && lines[y][x]<='9') matrix[y,x] = lines[y][x] - '0';
+				for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) if (lines[y][x]>='0' && lines[y][x]<='9') matrix[y,x] = lines[y][x] - '0';
 
-				var matrix5 = new int[lines.Length*5,lines.Length*5];
-				for (int y=0; y<lines.Length ;y++) for (int x=0; x<lines.Length ;x++) matrix5[y,x] = matrix[y,x];
-				for (int i=0; i<4 ;i++) for (int y=0; y<lines.Length ;y++) for (int x=0; x<lines.Length ;x++) matrix5[(i+1)*lines.Length+y,x] = matrix5[i*lines.Length+y,x] + 1  == 10 ? 1 : matrix5[i*lines.Length+y,x] + 1;
-				for (int i=0; i<5 ;i++) for (int j=0; j<4 ;j++) for (int y=0; y<lines.Length ;y++) for (int x=0; x<lines.Length ;x++) matrix5[i*lines.Length+y,(j+1)*lines.Length+x] = matrix5[i*lines.Length+y,j*lines.Length+x] + 1 == 10 ? 1 : matrix5[i*lines.Length+y,j*lines.Length+x] + 1;
+				var matrix5 = new int[height*5,width*5];
+				for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) matrix5[y,x] = matrix[y,x];
+				for (int i=0; i<4 ;i++) for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) matrix5[(i+1)*height+y,x] = matrix5[i*height+y,x] + 1  == 10 ? 1 : matrix5[i*height+y,x] + 1;
+				for (int i=0; i<5 ;i++) for (int j=0; j<4 ;j++) for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) matrix5[i*height+y,(j+1)*width+x] = matrix5[i*height+y,j*width+x] + 1 == 10 ? 1 : matrix5[i*height+y,j*width+x] + 1;
 				//matrix = matrix5;
-				/*for (int y=0; y<lines.Length*5 ;y++) {
-					for (int x=0; x<lines.Length*5 ;x++) Console.Write(matrix5[y,x]);
+				for (int y=0; y<height*5 ;y++) {
+					for (int x=0; x<width*5 ;x++) Console.Write(matrix5[y,x]);
 					Console.Write('\n');
-				}*/
+				}
 			}
 
 			/*var sw2 = Stopwatch.StartNew();
@@ -394,7 +397,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 
 		int minimalRislLocation = matrix.Cast<int>().Min();
 
-		//var archives = new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path, (int y, int x) from)>();
+		var archives = new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path, (int y, int x) from)>();
 		return MoveTo(src,-matrix[src.y,src.x],(new List<(int y,int x)>(),(0,0))); // Do not consider the risk of the starting location unless you move there
 
 		(int risk, List<(int y,int x)> path) MoveTo((int y, int x) location, int risk, (List<(int y,int x)> path, (int y,int x) max) path) {
@@ -443,20 +446,24 @@ A:			if (int.TryParse(args[0], out int height)) {
 			var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.OrderBy(m => m.risk).First();//.Min();
 			//var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.MinBy(x => x.risk);
 
-			/*if (min.risk != int.MaxValue) {
+			if (min.risk != int.MaxValue) {
 				var segment = min.path.SkipWhile(l => l!=location).Skip(1).ToList();
 				var fromLoc = min.path[^(segment.Count+1)];
 				archives[location] = (min.risk-risk,segment,fromLoc);
-				if (location == (5,4) || location == (6,4)) {
+				if (location == (3,11) || location == (666,4)) {
 					Console.Write($"\nMinimum risk from {location} arriving from ({fromLoc}) ({min.risk-risk}/{lowestRiskSoFar}): ");
 					for (int i=0; i<segment.Count ;i++) Console.Write(segment[i]);Console.Write(";");
 					for (int i=0; i<min.path.Count ;i++) Console.Write(min.path[i]);
 					Console.Write("\n");
 				}
 			} else {
+				if (location == (3,11) && archives.ContainsKey(location) && archives[location].risk!=int.MaxValue) {
+					Console.Write($"\nMinimum risk from {location} ({archives[location].risk}/{lowestRiskSoFar}): Voided: ");
+					for (int i=0; i<archives[location].path.Count ;i++) Console.Write(archives[location].path[i]);
+					Console.Write("\n");
+				}
 				archives[location] = (int.MaxValue,null,(0,0));
-				if (location == (5,4) || location == (6,4)) Console.Write($"\nMinimum risk from {location} ({lowestRiskSoFar}): Voided\n");
-			}*/
+			}
 
 			return min;
 		}
