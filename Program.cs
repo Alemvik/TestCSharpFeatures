@@ -67,6 +67,10 @@ public class Program {
 	public static readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 	static unsafe async Task Main(string[] args)
 	{
+		string str = CsvToInsert("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));
+		Console.WriteLine(str);
+		return;
+
 		if (args.Length > 0) {
 			int start=0;
 			int width = 0;
@@ -93,10 +97,10 @@ A:			if (int.TryParse(args[0], out int height)) {
 				for (int i=0; i<4 ;i++) for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) matrix5[(i+1)*height+y,x] = matrix5[i*height+y,x] + 1  == 10 ? 1 : matrix5[i*height+y,x] + 1;
 				for (int i=0; i<5 ;i++) for (int j=0; j<4 ;j++) for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) matrix5[i*height+y,(j+1)*width+x] = matrix5[i*height+y,j*width+x] + 1 == 10 ? 1 : matrix5[i*height+y,j*width+x] + 1;
 				//matrix = matrix5;
-				for (int y=0; y<height*5 ;y++) {
+				/*for (int y=0; y<height*5 ;y++) {
 					for (int x=0; x<width*5 ;x++) Console.Write(matrix5[y,x]);
 					Console.Write('\n');
-				}
+				}*/
 			}
 
 			/*var sw2 = Stopwatch.StartNew();
@@ -212,7 +216,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 		//TestDatabase.Tester.Go();
 		//TestMisc.Tester.Go();
 		//TestJson.Tester.Go(false);
-		TestLinq.Tester.Go();
+		//TestLinq.Tester.Go();
 		//TestExtension.Tester.Go();
 		//TestSpan.Tester.Go();
 		//TestStream.Tester.Go();
@@ -397,10 +401,16 @@ A:			if (int.TryParse(args[0], out int height)) {
 
 		int minimalRislLocation = matrix.Cast<int>().Min();
 
-		var archives = new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path, (int y, int x) from)>();
+		//var archives = new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path, (int y, int x) from)>();
+		var archives = new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path)>[4] {
+			new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path)>(), // right
+			new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path)>(), // down
+			new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path)>(), // left
+			new Dictionary<(int y,int x), (int risk, List<(int y,int x)> path)>()  // up
+		};
 		return MoveTo(src,-matrix[src.y,src.x],(new List<(int y,int x)>(),(0,0))); // Do not consider the risk of the starting location unless you move there
 
-		(int risk, List<(int y,int x)> path) MoveTo((int y, int x) location, int risk, (List<(int y,int x)> path, (int y,int x) max) path) {
+		(int risk, List<(int y,int x)> path) MoveTo((int y, int x) location, int risk, (List<(int y,int x)> path, (int y,int x) max) path, int direction=0) {
 			if (location.y<0 || location.y>=height || location.x<0 || location.x>=width || matrix[location.y,location.x]==int.MaxValue || 
 				path.path.Contains((location.y,location.x)) || 
 				risk + matrix[dst.y,dst.x] + minimalRislLocation * (Math.Abs(location.y-dst.y)+Math.Abs(location.x-dst.x)-1) > lowestRiskSoFar) return (int.MaxValue,null);
@@ -411,42 +421,59 @@ A:			if (int.TryParse(args[0], out int height)) {
 			path.max.y = Math.Max(path.max.y,location.y);
 			path.max.x = Math.Max(path.max.x,location.x);
 
-			/*(int risk, List<(int y,int x)> path,(int y,int x) from) archiveValue;
-			if (archives.TryGetValue(location, out archiveValue) && path.path[^2] != archiveValue.from) {
-				if (archiveValue.risk == int.MaxValue) return (int.MaxValue,null);
+			var loc = location;
+			(int risk, List<(int y,int x)> path) archiveValue = (int.MaxValue,null);
+			if (direction>0 && archives[direction-1].TryGetValue(location, out archiveValue)) {
+				//if (archiveValue.risk == int.MaxValue) return (int.MaxValue,null);
+				if (risk+archiveValue.risk > lowestRiskSoFar) return (int.MaxValue,null);
 				risk += archiveValue.risk;
-				if (risk > lowestRiskSoFar) return (int.MaxValue,null);
 				path.path.AddRange(archiveValue.path);
+				//Console.WriteLine($"{location}: {archiveValue.risk}");
 				location = dst;
-			}*/
+			}
 
 			if (location == dst) {
 				pathCount++;
 				if (risk <= lowestRiskSoFar) {
 					if (risk < lowestRiskSoFar || path.path.Count < shortestPath.Count)  {
 						shortestPath = path.path;
-						Console.Beep(); Console.Write($"\n{DateTime.Now:HH\\hmm} {risk} ({shortestPath.Count}): "); for (int i=0; i<Math.Min(20,path.path.Count) ;i++) Console.Write($"({path.path[i].y},{path.path[i].x}) "); Console.Write('\n');
+						if (archiveValue.risk != int.MaxValue) {
+							Console.Beep(); Console.Write($"\n{DateTime.Now:HH\\hmm} {loc} {risk} ({shortestPath.Count}): "); for (int i=0; i<Math.Min(20,path.path.Count) ;i++) Console.Write($"({path.path[i].y},{path.path[i].x}) "); Console.Write('\n');
+						}
 					}
 					lowestRiskSoFar = risk;
-					return (risk,path.path);
+					//return (risk,path.path);
 				}
-				return (risk,path.path);//(int.MaxValue,null);
+
+				return (risk,path.path);
 			}
 
-			if (risk + matrix[dst.y,dst.x] > lowestRiskSoFar) return (int.MaxValue,null); // no need to go further since we already have found better path than this path segment
+			//if (risk + matrix[dst.y,dst.x] > lowestRiskSoFar) return (int.MaxValue,null); // no need to go further since we already have found better path than this path segment
 
-			var right = MoveTo((location.y,location.x+1), risk, (new List<(int y,int x)>(path.path),path.max));
-			var down = MoveTo((location.y+1,location.x), risk, (new List<(int y,int x)>(path.path),path.max));
+			var right = MoveTo((location.y,location.x+1), risk, (new List<(int y,int x)>(path.path),path.max),1);
+			if (right.risk != int.MaxValue && right.path[^1]==dst) {
+				var segment = right.path.SkipWhile(l => l!=location).Skip(1).ToList();
+				int segmentRisk = segment.Sum(l=>matrix[l.y,l.x]);
 
-			if (Math.Max(0,path.max.y-path.path[^1].y) + Math.Max(0,path.max.x-path.path[^1].x) > maxBackSteps) return (int.MaxValue,null);
+				if (archives[0].TryGetValue(location, out archiveValue) && (archiveValue.risk != segmentRisk || archiveValue.path.Count != segment.Count)) {
+					Console.Write($"{location} ({segmentRisk} was {archiveValue.risk}): "); for (int i=0; i<segment.Count ;i++) Console.Write(segment[i]); Console.Write('\n');
+				} else {
+					Console.Write($"{location} ({segmentRisk}): "); for (int i=0; i<segment.Count ;i++) Console.Write(segment[i]); Console.Write('\n');
+				}
 
-			var left = MoveTo((location.y,location.x-1), risk, (new List<(int y,int x)>(path.path),path.max));
-			var up = MoveTo((location.y-1,location.x), risk, (new List<(int y,int x)>(path.path),path.max));
+				archives[0][location] = (segmentRisk,segment);
+			} //else if (archives[0].TryGetValue(location, out archiveValue)) Console.Write($"{location} (void was {archiveValue.risk})\n"); //archives[0].Remove(location); //] = (int.MaxValue,null);
 
-			var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.OrderBy(m => m.risk).First();//.Min();
-			//var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.MinBy(x => x.risk);
+			var down = MoveTo((location.y+1,location.x), risk, (new List<(int y,int x)>(path.path),path.max),2);
 
-			if (min.risk != int.MaxValue) {
+			//if (Math.Max(0,path.max.y-path.path[^1].y) + Math.Max(0,path.max.x-path.path[^1].x) > maxBackSteps) return (int.MaxValue,null);
+			var left = MoveTo((location.y,location.x-1), risk, (new List<(int y,int x)>(path.path),path.max),3);
+			var up = MoveTo((location.y-1,location.x), risk, (new List<(int y,int x)>(path.path),path.max),4);
+
+			//var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.OrderBy(m => m.risk).First();//.Min();
+			var min = new (int risk, List<(int y,int x)> path)[] {right,down,left,up}.MinBy(x => x.risk);
+
+			/*if (min.risk != int.MaxValue) {
 				var segment = min.path.SkipWhile(l => l!=location).Skip(1).ToList();
 				var fromLoc = min.path[^(segment.Count+1)];
 				archives[location] = (min.risk-risk,segment,fromLoc);
@@ -463,7 +490,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 					Console.Write("\n");
 				}
 				archives[location] = (int.MaxValue,null,(0,0));
-			}
+			}*/
 
 			return min;
 		}
@@ -485,5 +512,46 @@ A:			if (int.TryParse(args[0], out int height)) {
 		}
 		//for (int i=0; i<path.Count ;i++) Console.Write(path[i]);
 		Console.WriteLine($"\n{DateTime.Now:yyyy-MM-dd (HH\\hmm)}: Duration for {matrix.GetLength(0)} rows per {matrix.GetLength(1)} columns is {sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}; Risk={risk} ({path.Count-1} moves); srcLoc=({path[0].y},{path[0].x}); dstLoc=({path[path.Count-1].y},{path[path.Count-1].x})\n");
+	}
+
+	// string str = CsvToInsert("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));
+	// Example output: "insert into dbo.Mytable(Id,Name,StartDate) select Id,Name,StartDate from (values (1,'Alain','1967-03-13'),(2,'Emie','2008-12-20')) sub (Id,Name,StartDate);"
+	public static string CsvToInsert(string csvFile, string tableName, char separator=',', Func<string,string> actionOnStringValues=null)
+	{
+		if (actionOnStringValues is null) actionOnStringValues = (x=>x);
+
+		string[] lines = System.Text.RegularExpressions.Regex.Replace(System.IO.File.ReadAllText(csvFile), @"\r\n|\n\r|\r", "\n").Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+		//lines = lines.Where(r => r[0] != '#').ToArray();
+		//if (lines.Length < 2) return "";
+
+		var fields = new List<string>();
+		foreach(string fieldName in lines[0].Split(separator)) fields.Add(fieldName.Trim());
+		string fieldsStr = string.Join(',',fields.ToArray());
+
+		var data = new List<string>();
+		for(int r=1; r<lines.Length ;r++) {
+			if (lines[r][0]=='#') continue; // ignore lines starting with #
+			string[] values = lines[r].Split(separator,StringSplitOptions.TrimEntries);
+			if (values.Length != fields.Count) throw new Exception($"CsvToInsert(\"{csvFile}\"): Invalid input file at line {r+1}");
+		
+			var subValues = new List<string>();
+			foreach(string value in values) {
+				if (value[0] == '\'' && value[^1] == '\'') subValues.Add(actionOnStringValues(value));
+				else if (value[0] == '\'' || value[^1] == '\'') throw new Exception($"CsvToInsert(\"{csvFile}\"): Invalid input file at line {r+1}");
+				else if (int.TryParse(value,out int ii)) subValues.Add(value);
+				else if (double.TryParse(value,out double dd)) subValues.Add(value);
+				else subValues.Add('\''+actionOnStringValues(value)+'\'');
+				//else subValues.Add('\''+value.Replace("\\n","'+CHAR(10)+'")+'\'');
+			}
+
+			data.Add("\n("+string.Join(',',subValues.ToArray())+')');
+		}
+		string dataStr = string.Join(',',data.ToArray());
+
+		var dataRows = new List<string>();
+		string statement = $"insert into {tableName} ({fieldsStr}) select {fieldsStr} from (values {dataStr}\n) sub ({fieldsStr});";
+
+		return statement;
 	}
 }
