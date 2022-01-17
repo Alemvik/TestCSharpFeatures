@@ -533,16 +533,17 @@ A:			if (int.TryParse(args[0], out int height)) {
 		for(int r=1; r<lines.Length ;r++) {
 			if (lines[r][0]=='#') continue; // ignore lines starting with #
 			string[] values = lines[r].Split(separator,StringSplitOptions.TrimEntries);
-			if (values.Length != fields.Count) throw new Exception($"CsvToInsert(\"{csvFile}\"): Invalid input file at line {r+1}");
+			if (values.Length < fields.Count) throw new Exception($"CsvToInsert(\"{csvFile}\"): Invalid input file at line {r+1}"); // Checking for less than since trailing may add extra empty fields
 		
 			var subValues = new List<string>();
 			foreach(string value in values) {
-				if (value[0] == '\'' && value[^1] == '\'') subValues.Add(actionOnStringValues(value));
+				if (value.Length==0 || value.ToUpper()=="DEFAULT") subValues.Add("DEFAULT");
+				else if (value.ToUpper()=="NULL") subValues.Add("NULL");
+				else if (value[0] == '\'' && value[^1] == '\'') subValues.Add(actionOnStringValues(value));
 				else if (value[0] == '\'' || value[^1] == '\'') throw new Exception($"CsvToInsert(\"{csvFile}\"): Invalid input file at line {r+1}");
 				else if (int.TryParse(value,out int ii)) subValues.Add(value);
 				else if (double.TryParse(value,out double dd)) subValues.Add(value);
 				else subValues.Add('\''+actionOnStringValues(value)+'\'');
-				//else subValues.Add('\''+value.Replace("\\n","'+CHAR(10)+'")+'\'');
 			}
 
 			data.Add("\n("+string.Join(',',subValues.ToArray())+')');
