@@ -16,11 +16,11 @@ https://www.nuget.org/packages/Jil/
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" /> -->
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.*" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.*" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.*" />
-		<!-- <PackageReference Include="Microsoft.Extensions.Options" Version="5.0.*" /> -->
+		<!-- <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" /> -->
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.*" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.*" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.*" />
+		<!-- <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.*" /> -->
 
 		<PackageReference Include="AutoFixture" Version="4.17.*" />
 		<PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
@@ -28,14 +28,14 @@ https://www.nuget.org/packages/Jil/
 		<PackageReference Include="NewtonSoft.Json" Version="13.0.1" />
 		<PackageReference Include="Utf8Json" Version="1.3.7" />
 
-    	<PackageReference Include="MySql.Data" Version="8.0.26" />
+    	<PackageReference Include="MySql.Data" Version="8.0.27" />
     	<PackageReference Include="System.Data.SqlClient" Version="4.8.*" />
-    	<PackageReference Include="MySqlConnector" Version="1.3.11" />
+    	<PackageReference Include="MySqlConnector" Version="2.1.2" />
 		<!-- <PackageReference Include="Oracle.ManagedDataAccess" Version="21.3.0" /> -->
 
 		<PackageReference Include="Carter" Version="5.2.0" />
 
-		<PackageReference Include="Alemvik" Version="1.0.4" />
+		<PackageReference Include="Alemvik" Version="1.0.5" />
 		<!-- <ProjectReference Include="../Alemvik/Alemvik/Alemvik.csproj" Version="1.0.1" /> -->
      <!-- <Reference Include="Alemvik" Version="1.0.4">
        <HintPath>../ref/Alemvik.dll</HintPath>

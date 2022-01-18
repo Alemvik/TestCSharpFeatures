@@ -67,10 +67,6 @@ public class Program {
 	public static readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
 	static unsafe async Task Main(string[] args)
 	{
-		string str = CsvToInsert("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));
-		Console.WriteLine(str);
-		return;
-
 		if (args.Length > 0) {
 			int start=0;
 			int width = 0;
@@ -210,13 +206,20 @@ A:			if (int.TryParse(args[0], out int height)) {
 			Console.Write("\n");
 		}
 
+		{
+			var msg = "Test CsvToInsert statement";
+			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
+			string str = CsvToInsert("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));
+			Console.WriteLine('\n'+str+'\n');
+		}
+
 		// *** The other tests ***
 		//TestRegex.Tester.Go();
 		//TestAsync.Tester.Go(".");
 		//TestDatabase.Tester.Go();
 		//TestMisc.Tester.Go();
 		//TestJson.Tester.Go(false);
-		//TestLinq.Tester.Go();
+		TestLinq.Tester.Go();
 		//TestExtension.Tester.Go();
 		//TestSpan.Tester.Go();
 		//TestStream.Tester.Go();
@@ -516,7 +519,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 
 	// string str = CsvToInsert("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));
 	// Example output: "insert into dbo.Mytable(Id,Name,StartDate) select Id,Name,StartDate from (values (1,'Alain','1967-03-13'),(2,'Emie','2008-12-20')) sub (Id,Name,StartDate);"
-	public static string CsvToInsert(string csvFile, string tableName, char separator=',', Func<string,string> actionOnStringValues=null)
+	/*public static string CsvToInsert(string csvFile, string tableName, char separator=',', Func<string,string> actionOnStringValues=null)
 	{
 		if (actionOnStringValues is null) actionOnStringValues = (x=>x);
 
@@ -539,14 +542,14 @@ A:			if (int.TryParse(args[0], out int height)) {
 			foreach(string value in values) {
 				if (value.Length==0 || value.ToUpper()=="DEFAULT") subValues.Add("DEFAULT");
 				else if (value.ToUpper()=="NULL") subValues.Add("NULL");
-				else if (value[0] == '\'' && value[^1] == '\'') subValues.Add(actionOnStringValues(value));
+				else if (value[0] == '\'' && value[^1] == '\'') subValues.Add('\''+actionOnStringValues(value.Substring(1,value.Length-2))+'\'');
 				else if (value[0] == '\'' || value[^1] == '\'') throw new Exception($"CsvToInsert(\"{csvFile}\"): Invalid input file at line {r+1}");
 				else if (int.TryParse(value,out int ii)) subValues.Add(value);
 				else if (double.TryParse(value,out double dd)) subValues.Add(value);
 				else subValues.Add('\''+actionOnStringValues(value)+'\'');
 			}
 
-			data.Add("\n("+string.Join(',',subValues.ToArray())+')');
+			data.Add("\n  ("+string.Join(',',subValues.ToArray())+')');
 		}
 		string dataStr = string.Join(',',data.ToArray());
 
@@ -554,5 +557,5 @@ A:			if (int.TryParse(args[0], out int height)) {
 		string statement = $"insert into {tableName} ({fieldsStr}) select {fieldsStr} from (values {dataStr}\n) sub ({fieldsStr});";
 
 		return statement;
-	}
+	}*/
 }
