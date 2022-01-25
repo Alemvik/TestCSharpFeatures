@@ -41,11 +41,11 @@ static class Tester {
 		// Save stream to a file
 		ms.Position = 0;
 		string fileLocationAndName = "./TestStream.txt";
-		using(FileStream fs = new FileStream(fileLocationAndName, FileMode.Create)) 
+		using(FileStream fs = new(fileLocationAndName, FileMode.Create)) 
 			ms.CopyTo(fs);
 
 		// Read it back to ms at current ms position (for twice the text)
-		using(FileStream fs = new FileStream(fileLocationAndName, FileMode.Open, FileAccess.Read)) 
+		using(FileStream fs = new(fileLocationAndName, FileMode.Open, FileAccess.Read)) 
 			fs.CopyTo(ms);
 		Console.WriteLine($"Content of {fileLocationAndName}: \"{ms.ToString(encoding)}\"");
 

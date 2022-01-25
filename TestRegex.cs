@@ -58,7 +58,7 @@ static class Tester {
 						}
 					}
 				} else if (lines[l][c] == '}') {
-					sb[sb.Length-1] = '∙'; // replaces { with ∙
+					sb[^1] = '∙'; // replaces { with ∙
 					copying=true;
 				}
 			}
@@ -125,7 +125,8 @@ static class Tester {
 			if (a >= 0) {
 				int b = pat.IndexOf('}', a);
 				if (b>0) {
-					string newPattern = (pat.Substring(0,a) + pat.Substring(b+1,pat.Length-b-1)).Trim();
+					//string newPattern = (pat.Substring(0,a) + pat.Substring(b+1,pat.Length-b-1)).Trim();
+					string newPattern = (string.Concat(pat.AsSpan(0,a), pat.AsSpan(b+1,pat.Length-b-1))).Trim();
 					newPattern = Regex.Replace(newPattern,@"[ \t]"," ");
 					newPattern = '^' + Regex.Escape(newPattern).Replace("∙", @"\s*\S+.*") + '$';
 					if (new Regex(newPattern, RegexOptions.IgnoreCase).IsMatch(str)) return true;

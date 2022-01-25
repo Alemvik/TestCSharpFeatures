@@ -79,7 +79,7 @@ public static class Tester {
 		}
 
 		// https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/async/
-		Task task = new Task(CallMethod);
+		Task task = new(CallMethod);
 		task.Start();
 		task.Wait();
 
@@ -93,7 +93,7 @@ public static class Tester {
 
 		String[] files = Directory.GetFiles(directory_a, "*.cs");
 		long totalSize = 0;
-		Parallel.For (0, files.Length, index => { FileInfo fi = new FileInfo(files[index]);
+		Parallel.For (0, files.Length, index => { FileInfo fi = new(files[index]);
 			long size = fi.Length;
 			Interlocked.Add(ref totalSize, size);
 		});
@@ -142,7 +142,7 @@ public static class Tester {
 		int length = 0;
 
 		Console.WriteLine($"Reading {file}");
-		using (StreamReader reader = new StreamReader(file)) {
+		using (StreamReader reader = new(file)) {
 			string s = await reader.ReadToEndAsync();
 			length = s.Length;
 		}

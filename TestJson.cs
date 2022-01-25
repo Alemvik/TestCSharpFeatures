@@ -25,12 +25,13 @@ static class Tester {
 		var petSerializedText = JsonSerializer.Serialize(pet,option);
 		Console.WriteLine($"petSerializedText = \"{petSerializedText}\"\n\n");
 
-		var jbm = new JsonbenchMarks();
-		string sA = jbm.SerializeFromSystemTextJson();
+		//var jbm = new JsonbenchMarks();
+		string sA = JsonbenchMarks.SerializeFromSystemTextJson();
 
-		var jsonSettings = new Newtonsoft.Json.JsonSerializerSettings();
-		jsonSettings.DateFormatString = "yyyy-MM-dd";
-		string sB = jbm.SerializeFromNewtonsoft(jsonSettings);
+		var jsonSettings = new Newtonsoft.Json.JsonSerializerSettings {
+			DateFormatString = "yyyy-MM-dd"
+		};
+		string sB = JsonbenchMarks.SerializeFromNewtonsoft(jsonSettings);
 		if (sA != sB) Console.WriteLine($"{sA}\n\n Not equals to\n\n{sB}");
 		else Console.WriteLine(sA);
 		if (doBenchMarks_a) BenchmarkRunner.Run<JsonbenchMarks>();
@@ -54,7 +55,7 @@ public class Owner {
 
 [MemoryDiagnoser]
 public class JsonbenchMarks {
-	public static readonly List<Owner> owners = new List<Owner> {
+	public static readonly List<Owner> owners = new() {
 				new Owner { Name = "Alain Trépanier", Pets = new Pet[] { new Pet { Name="Miko", BirthDatetime=DateTime.Parse("2020-12-20") }, new Pet { Name="Betzie", BirthDatetime=DateTime.Parse("2021-12-20") },new Pet { Name="Émeraude", BirthDatetime=DateTime.Parse("2021-12-20") }}},
 				new Owner { Name = "Évie Dutel", Pets = new Pet[] { new Pet { Name = "Snowball", BirthDatetime=DateTime.Parse("2020-12-20")}}},
 				new Owner { Name = "Sam Bucca", Pets = new Pet[] { new Pet { Name = "Belle", BirthDatetime=DateTime.Parse("2013-12-20")} }},
@@ -63,22 +64,26 @@ public class JsonbenchMarks {
 	public static readonly string serializedOwners = "[{\"Name\":\"Alain Trépanier\",\"Pets\":[{\"Name\":\"Miko\",\"BirthDatetime\":\"2020-12-20\",\"Age\":1},{\"Name\":\"Betzie\",\"BirthDatetime\":\"2021-12-20\",\"Age\":0},{\"Name\":\"Émeraude\",\"BirthDatetime\":\"2021-12-20\",\"Age\":0}]},{\"Name\":\"Évie Dutel\",\"Pets\":[{\"Name\":\"Snowball\",\"BirthDatetime\":\"2020-12-20\",\"Age\":1}]},{\"Name\":\"Sam Bucca\",\"Pets\":[{\"Name\":\"Belle\",\"BirthDatetime\":\"2013-12-20\",\"Age\":8}]},{\"Name\":\"Thomas Hawk\",\"Pets\":[{\"Name\":\"Sweetie\",\"BirthDatetime\":\"2012-12-20\",\"Age\":9},{\"Name\":\"Rover\",\"BirthDatetime\":\"2010-12-20\",\"Age\":11}]}]";
 
 	[Benchmark]
-	public string SerializeFromSystemTextJson()
+	public static string SerializeFromSystemTextJson()
 	{
-		JsonSerializerOptions jso = new JsonSerializerOptions();
-		jso.Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+		JsonSerializerOptions jso = new() {
+			Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+		};
 
 		return System.Text.Json.JsonSerializer.Serialize(owners,jso);
 	}
 
 	[Benchmark]
-	public string SerializeFromNewtonsoft(Newtonsoft.Json.JsonSerializerSettings s) => Newtonsoft.Json.JsonConvert.SerializeObject(owners,s);
+	public static string SerializeFromNewtonsoft(Newtonsoft.Json.JsonSerializerSettings s)
+	{
+		return Newtonsoft.Json.JsonConvert.SerializeObject(owners, s);
+	}
 
 	[Benchmark]
-	public List<Owner> DeserializeFromSystemTextJson() => System.Text.Json.JsonSerializer.Deserialize<List<Owner>>(serializedOwners);
+	public static List<Owner> DeserializeFromSystemTextJson() => System.Text.Json.JsonSerializer.Deserialize<List<Owner>>(serializedOwners);
 
 	[Benchmark]
-	public List<Owner> DeserializeFromNewtonsoft() => Newtonsoft.Json.JsonConvert.DeserializeObject<List<Owner>>(serializedOwners);
+	public static List<Owner> DeserializeFromNewtonsoft() => Newtonsoft.Json.JsonConvert.DeserializeObject<List<Owner>>(serializedOwners);
 }
 
 class JsonDateConverter : JsonConverter<DateTime> {

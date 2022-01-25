@@ -50,7 +50,7 @@ static class Tester {
 		var msg = "TestXquery";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
-		XDocument srcTree = new XDocument(
+		XDocument srcTree = new(
 			new XComment("This is a comment"),
 			new XElement("Root",
 				new XElement("Child1", "data1"),
@@ -64,7 +64,7 @@ static class Tester {
 			)
 		);
 
-		XDocument doc = new XDocument(
+		XDocument doc = new(
 			new XComment("This is a comment"),
 			new XElement("Root",
 				from el in srcTree.Element("Root").Elements()
@@ -120,7 +120,7 @@ static class Tester {
 			foreach(XElement col in columns) if (col.Value.Contains(',')) {
 				csv.Append($"\"{col.Value.Replace("\"","\"\"")}\",");
 			} else csv.Append(col.Value+',');
-			csv[csv.Length-1]='\n'; // replace last comma by a newline
+			csv[^1]='\n'; // replace last comma by a newline
 		}
 
 		return (rows.Count()-1,csv.ToString());

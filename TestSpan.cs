@@ -16,8 +16,8 @@ static class Tester {
 		var msg = "TestSpan";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
-		var dateParts = GetDateComponents(DateTime.Now.ToString("yyyy-MM-dd"));
-		Console.WriteLine($"year = {dateParts.year}, month={dateParts.month:00}, day={dateParts.day:00}");
+		var (year, month, day) = GetDateComponents(DateTime.Now.ToString("yyyy-MM-dd"));
+		Console.WriteLine($"year = {year}, month={month:00}, day={day:00}");
 		string sentence = "\taaa\tbbb ccc ddd\t    eee  ";
 		Console.WriteLine($"\"{sentence}\"'s middle word is \"{sentence.MiddleWord().ToString()}\"");
 
@@ -32,7 +32,7 @@ static class Tester {
 	static (int year, int month, int day) GetDateComponents(string sdate_a)
 	{
 		ReadOnlySpan<char> span = sdate_a;
-		return (int.Parse(span.Slice(0, 4)), int.Parse(span.Slice(5, 2)), int.Parse(span.Slice(8)));
+		return (int.Parse(span[..4]), int.Parse(span.Slice(5, 2)), int.Parse(span[8..]));
 	}
 	static ReadOnlySpan<char> MiddleWord(this string sentence_a)
 	{
@@ -44,7 +44,7 @@ static class Tester {
 		if (spaceCount > 0) {
 			spaceCount >>= 1; // divide it by two by shifting it by one
 			for (int i = 0; i < span.Length; i++) if (span[i] == ' ' && (--spaceCount <= 0)) {
-					if (spaceCount < 0) return span.Slice(0, i);
+					if (spaceCount < 0) return span[..i];
 					for (int j = i + 1; j < span.Length; j++) if (span[j] == ' ') return span.Slice(i + 1, j - i - 1);
 				}
 		}

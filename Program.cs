@@ -60,7 +60,7 @@ public class ProductOwner {
 	[Required]
 	public string Name { get; set; }
 	public DateTimeOffset StartDate { get; set; }
-	public override string ToString() => $"Owner's name is {Name}, his id is {Id} and his start date is {StartDate.ToString("yyyy-MM-dd")}\n";
+	public override string ToString() => $"Owner's name is {Name}, his id is {Id} and his start date is {StartDate:yyyy-MM-dd}\n";
 }
 
 public class Program {
@@ -78,7 +78,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 				width = height;
 				if (args.Length > 1) int.TryParse(args[1], out width);
 				matrix = new int[width,height];
-				Random rnd = new Random();
+				Random rnd = new();
 				for (int y=0; y<width ;y++) for (int x=0; x<height ;x++) matrix[y,x] = rnd.Next(10); // random int betwwen 0 inclusively and 9 inclusively
 			} else {
 				var lines = System.IO.File.ReadAllText(args[0]).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
@@ -128,8 +128,9 @@ A:			if (int.TryParse(args[0], out int height)) {
 		{
 			var msg = "Test Dictionary";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
-			var da = new Dictionary<string,int>(); // it has hashtable
-			da["Oranges"] = 67;
+			var da = new Dictionary<string, int> {
+				["Oranges"] = 67
+			}; // it has hashtable
 			var db = new ConcurrentDictionary<string,int>(); // this one is thread safe and has more features
 			db["Oranges"] = 77;
 			Console.WriteLine($"Oranges count: {da["Oranges"]} and {db["Oranges"]}");
@@ -151,7 +152,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 				.SelectMany(d => d) // Flatten from Dictionary[] to KeyValuePair[]
 				.Select(kvp => (kvp.Key, kvp.Value))
 				.ToArray();
-			foreach (var item in items) Console.WriteLine($"({item.Category},{item.Produce})");
+			foreach (var (Category, Produce) in items) Console.WriteLine($"({Category},{Produce})");
 		}
 
 		{
@@ -164,9 +165,9 @@ A:			if (int.TryParse(args[0], out int height)) {
 				.Select(i => (i.Key, i.Value)) // .Select(i => new ValueTuple<string, string[]>(i.Key, i.Value))
 				.ToList();
 
-			foreach (var product in products) {
-				Array.Sort(product.Produces);
-				Console.WriteLine($"({product.Category},[{String.Join(',',product.Produces)}])");
+			foreach (var (Category, Produces) in products) {
+				Array.Sort(Produces);
+				Console.WriteLine($"({Category},[{String.Join(',',Produces)}])");
 			}
 		}
 
@@ -187,7 +188,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 			var msg = "Test Dictionary to list of System.ValueTuple";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 			List<(long a, int b)> tuples = (new Dictionary<long,int>() { { 1L,1 },{ 2L,2 } }).Select(x => (x.Key, x.Value)).ToList();
-			foreach (var tuple in tuples) Console.WriteLine($"({tuple.a},{tuple.b})");
+			foreach (var (a, b) in tuples) Console.WriteLine($"({a},{b})");
 		}
 
 		{
@@ -218,15 +219,15 @@ A:			if (int.TryParse(args[0], out int height)) {
 		//TestAsync.Tester.Go(".");
 		//TestDatabase.Tester.Go();
 		//TestMisc.Tester.Go();
-		//TestJson.Tester.Go(false);
+		TestJson.Tester.Go(false);
 		TestLinq.Tester.Go();
 		//TestExtension.Tester.Go();
-		//TestSpan.Tester.Go();
+		TestSpan.Tester.Go();
 		//TestStream.Tester.Go();
 		//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
 		//TestCsv();
 		//TestXquery.Tester.Go();
-		//TestComposition.Tester.Go();
+		TestComposition.Tester.Go();
 		//TestDeconstruction.Tester.Go();
 		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 		//var api = new MinimalApi(); // https://localhost:5501/donut
@@ -270,11 +271,12 @@ A:			if (int.TryParse(args[0], out int height)) {
 	public static void DiceProbabilities()
 	{
 		const int dices = 1;
-		var result = new List<int[]>();
-		result.Add(new int[dices]); // add first combination
+		var result = new List<int[]> {
+			new int[dices] // add first combination
+		};
 		Array.Fill(result[0],1);
 		for (; ; ) {
-			var lastResult = result[result.Count - 1];
+			var lastResult = result[^1];
 			var newResult = new int[dices];
 			lastResult.CopyTo(newResult,0);
 			result.Add(newResult);
@@ -316,7 +318,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 		if (wh != matrix.GetLength(1)) throw new ArgumentException("matrix must be square");
 		if (!start.Between(-wh+1,wh-1)) throw new ArgumentException($"start must be between {-wh+1} inclusively and {wh-1} inclusively");
 
-		var sw = Stopwatch.StartNew();
+		//var sw = Stopwatch.StartNew();
 		var perimeters = new (List<(int y,int x)> path, int risk)[3,2*wh-1]; //Array.Fill(horA,(null,0));
 		var innerPerimeterIx = 0;
 		var outterPerimeterIx = 1;
@@ -343,8 +345,9 @@ A:			if (int.TryParse(args[0], out int height)) {
 				int ii=0;
 				for (int i=0; i<innerPerimeterLength ;i++) {
 					int r = perimeters[outterCopyIx,o].risk + perimeters[innerPerimeterIx,i].risk;
-					var path = new List<(int y, int x)>();
-					path.Add(Location(outterPerimeterLocation,outterPerimeterWidth,o));
+					var path = new List<(int y, int x)> {
+						Location(outterPerimeterLocation, outterPerimeterWidth, o)
+					};
 
 					// Reached the two lefttop corners
 					if (i==innerPerimeterWidth-1 && o==outterPerimeterWidth-1) {
@@ -388,7 +391,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 */
 		return (perimeters[innerPerimeterIx,startIx].risk-perimeters[outterCopyIx,startIx].risk,perimeters[innerPerimeterIx,startIx].path);
 
-		(int y,int x) Location((int y,int x) location, int width, int x) {
+		static (int y,int x) Location((int y,int x) location, int width, int x) {
 			if (x<width) return (location.y+(width-x-1),location.x);
 			return (location.y,location.x+(x+1-width));
 		}
@@ -514,7 +517,8 @@ A:			if (int.TryParse(args[0], out int height)) {
 			Console.Write('\n');
 		}
 		//for (int i=0; i<path.Count ;i++) Console.Write(path[i]);
-		Console.WriteLine($"\n{DateTime.Now:yyyy-MM-dd (HH\\hmm)}: Duration for {matrix.GetLength(0)} rows per {matrix.GetLength(1)} columns is {sw.Elapsed.ToString(@"hh\:mm\:ss\.fff")}; Risk={risk} ({path.Count-1} moves); srcLoc=({path[0].y},{path[0].x}); dstLoc=({path[path.Count-1].y},{path[path.Count-1].x})\n");
+		string value = $"\n{DateTime.Now:yyyy-MM-dd (HH\\hmm)}: Duration for {matrix.GetLength(0)} rows per {matrix.GetLength(1)} columns is {sw.Elapsed:hh\\:mm\\:ss\\.fff}; Risk={risk} ({path.Count - 1} moves); srcLoc=({path[0].y},{path[0].x}); dstLoc=({path[^1].y},{path[^1].x})\n";
+		Console.WriteLine(value);
 	}
 
 	// string str = CsvToInsert("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));

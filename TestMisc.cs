@@ -20,9 +20,9 @@ public class SurveyQuestion {
 }
 
 struct Point {
-	public double x { get; init; } // When the init keyword is used, it restricts a property to only being set by a Constructor or during Nested Object Creation. After the object is created, the property becomes immutable.
-	public double y { get; init; }
-	public double z { get; init; }
+	public double X { get; init; } // When the init keyword is used, it restricts a property to only being set by a Constructor or during Nested Object Creation. After the object is created, the property becomes immutable.
+	public double Y { get; init; }
+	public double Z { get; init; }
 }
 class Tester {
 	public static void Go()
@@ -49,7 +49,7 @@ class Tester {
 
 		foreach (var q in surveyQuestions) Console.WriteLine(q + ": " + (q.Answer ?? "<Not answered yet>"));
 
-		var point = new Point { x = 2, y = 3, z = 4 };
+		var point = new Point { X = 2, Y = 3, Z = 4 };
 		Console.WriteLine($"\nthe size of a byte is {sizeof(byte)}");
 		DisplaySizeof<bool>();
 		DisplaySizeof<byte>();

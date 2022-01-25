@@ -1,5 +1,12 @@
 {
 	"FormattingOptions": {
+		"1doc": "https://github.com/OmniSharp/omnisharp-roslyn/blob/master/src/OmniSharp.Shared/Options/FormattingOptions.cs",
+
+		"enableEditorConfigSupport": true,
+
+		"newLine": "\n",
+		"UseTabs": true,
+
 		"NewLinesForBracesInLambdaExpressionBody": false,
 		"NewLinesForBracesInAnonymousMethods": false,
 		"NewLinesForBracesInAnonymousTypes": false,
@@ -9,12 +16,17 @@
 		"NewLinesForBracesInProperties": false,
 		"NewLinesForBracesInObjectCollectionArrayInitializers": false,
 		"NewLinesForBracesInAccessors": false,
+
 		"NewLineForElse": false,
 		"NewLineForCatch": false,
 		"NewLineForFinally": false,
+		"NewLineForMembersInObjectInit": false,
+		"NewLineForMembersInAnonymousTypes": false,
+		"NewLineForClausesInQuery": false,
+
 		"IndentBlock": true,
-		"UseTabs": true,
-		"SpaceAfterComma": false,
+		"SpaceAfterComma": true,
+		"SpaceBeforeComma": false,
 		"1TabSize": 2,
 		"1IndentationSize": 2,
 		"IndentBraces": false,
