@@ -30,15 +30,15 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 Usefull VsCode extensions: .NET Core Test Explorer, Auto Rename Tag, C#, Code Runner, Debugger for Chrome, HTML CSS Support, HTML Preview, .Net Core Tools, NuGet Package Manager, Subtitles Editor, Thunder Client, vscode-icons, XML Tools
 To test this, just comment in/out the throw lines from the three task members.
 */
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Data.Common;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+global using System;
+global using System.Collections.Concurrent;
+global using System.Collections.Generic;
+global using System.ComponentModel.DataAnnotations;
+global using System.Data;
+global using System.Data.Common;
+global using System.Diagnostics;
+global using System.IO;
+global using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 
@@ -219,18 +219,18 @@ A:			if (int.TryParse(args[0], out int height)) {
 		//TestAsync.Tester.Go(".");
 		//TestDatabase.Tester.Go();
 		//TestMisc.Tester.Go();
-		TestJson.Tester.Go(false);
-		TestLinq.Tester.Go();
+		//TestJson.Tester.Go(false);
+		//TestLinq.Tester.Go();
 		//TestExtension.Tester.Go();
-		TestSpan.Tester.Go();
+		//TestSpan.Tester.Go();
 		//TestStream.Tester.Go();
 		//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
 		//TestCsv();
 		//TestXquery.Tester.Go();
-		TestComposition.Tester.Go();
+		//TestComposition.Tester.Go();
 		//TestDeconstruction.Tester.Go();
 		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
-		//var api = new MinimalApi(); // https://localhost:5501/donut
+		var api = new MinimalApi(); // https://localhost:5501/donut
 	}
 
 	static void InitDatabase()
