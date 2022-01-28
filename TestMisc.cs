@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+//using System.Runtime.InteropServices;
 
 namespace TestMisc;
 
@@ -24,6 +25,7 @@ struct Point {
 	public double Y { get; init; }
 	public double Z { get; init; }
 }
+
 class Tester {
 	public static void Go()
 	{

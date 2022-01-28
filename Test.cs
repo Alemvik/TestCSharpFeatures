@@ -20,7 +20,7 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 	% dotnet new console -n TestAsync ; It will create a TestAsync folder (to delete it: %rm -rf TestAsync)
 	% dotnet restore ; Useful to do after adding packages in the Test.csproj file
 	% dotnet run -c debug ; or: dotnet run -c release
-	% dotnet build
+	% dotnet build -c Release
 	% dotnet run Test.dll 
 	% bin/Debug/net6.0/Test
 	% ASPNETCORE_ENVIRONMENT=Staging dotnet run
@@ -42,6 +42,7 @@ global using System.Diagnostics;
 global using System.IO;
 global using System.Linq;
 using System.Threading.Tasks;
+
 using Microsoft.Extensions.Configuration;
 
 using Alemvik;
@@ -73,7 +74,7 @@ public class Program {
 		.AddJsonFile($"appsettings_{environment}.json",optional:true,reloadOnChange:true) // Last loaded key wins! https://devblogs.microsoft.com/premier-developer/order-of-precedence-when-configuring-asp-net-core/
 		.Build();
 
-	static unsafe async Task Main(string[] args)
+	static async Task Main(string[] args)
 	{
 		if (args.Length > 0) {
 			int start=0;
@@ -93,7 +94,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 				height = lines.Length;
 				width = lines[0].Length;
 				matrix = new int[height,width];
-				fixed (int* p = matrix) new Span<int>(p, matrix.Length).Fill(int.MaxValue); // requires to be inside unsafe methods
+				unsafe { fixed (int* p = matrix) new Span<int>(p, matrix.Length).Fill(int.MaxValue);} // requires to be inside unsafe methods or unsabe block
 				for (int y=0; y<height ;y++) for (int x=0; x<width ;x++) if (lines[y][x]>='0' && lines[y][x]<='9') matrix[y,x] = lines[y][x] - '0';
 
 				var matrix5 = new int[height*5,width*5];
@@ -132,7 +133,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 
 		InitDatabase();
 
-		Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH\\hmm}: Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
+		Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH\\hmm}: App version is {System.Reflection.Assembly.GetEntryAssembly().GetName().Version}\nConfig: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
 
 		Console.Write($"Environment is {environment}; Environment is {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")} ({Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")})\n"); // The ASPNETCORE_ENVIRONMENT value overrides DOTNET_ENVIRONMENT
 
@@ -226,21 +227,21 @@ A:			if (int.TryParse(args[0], out int height)) {
 		}
 
 		// *** The other tests ***
-		//TestRegex.Tester.Go();
-		//TestAsync.Tester.Go(".");
-		//TestDatabase.Tester.Go();
-		//TestMisc.Tester.Go();
-		//TestJson.Tester.Go(false);
-		//TestLinq.Tester.Go();
-		//TestExtension.Tester.Go();
-		//TestSpan.Tester.Go();
-		//TestStream.Tester.Go();
-		//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
-		//TestCsv();
-		//TestXquery.Tester.Go();
-		//TestComposition.Tester.Go();
-		//TestDeconstruction.Tester.Go();
-		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
+		TestRegex.Tester.Go();
+		TestAsync.Tester.Go(".");
+		TestDatabase.Tester.Go();
+		TestMisc.Tester.Go();
+		TestJson.Tester.Go();
+		TestLinq.Tester.Go();
+		TestExtension.Tester.Go();
+		TestSpan.Tester.Go();
+		TestStream.Tester.Go();
+		await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
+		TestCsv();
+		TestXquery.Tester.Go();
+		TestComposition.Tester.Go();
+		TestDeconstruction.Tester.Go();
+		Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 		//var api = new MinimalApi();
 		//var api = new MinimalApiUsingCarter(); // https://localhost:5501/donut
 	}

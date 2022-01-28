@@ -24,10 +24,10 @@ static class Tester {
 
 		// Convert string to stream without using StreamWriter
 		byte[] byteArray = encoding.GetBytes(test); //byte[] byteArray = Encoding.Default.GetBytes(test);
-		var ms = new MemoryStream(byteArray); // <= this MemoryStream is not expandable !
+		var _ = new MemoryStream(byteArray); // <= this MemoryStream is not expandable !
 
 		// Convert string to stream using StreamWriter (it uses System.Text.Encoding.Default.GetBytes(str))
-		ms = new MemoryStream(500); // 500 bytes capacity
+		var ms = new MemoryStream(500); // 500 bytes capacity
 		var sw = new StreamWriter(ms, encoding);
 		sw.Write(test);
 		sw.Flush();

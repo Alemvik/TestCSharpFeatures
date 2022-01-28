@@ -32,10 +32,6 @@ expensive work where you cannot yield the threads back.
 https://www.youtube.com/watch?v=lHuyl_WTpME
 
 */
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -124,7 +120,7 @@ public static class Tester {
 	}
 	static async void CallMethod()
 	{
-		string filePath = "Program.cs";
+		string filePath = "appsettings.json";
 		Task<int> task = ReadFile(filePath);
 
 		Console.WriteLine("Other Work 1");
