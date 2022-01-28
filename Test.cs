@@ -21,7 +21,9 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 	% dotnet restore ; Useful to do after adding packages in the Test.csproj file
 	% dotnet run -c debug ; or: dotnet run -c release
 	% dotnet build
-	% dotnet run TestAsync.dll 
+	% dotnet run Test.dll 
+	% bin/Debug/net6.0/Test
+	% ASPNETCORE_ENVIRONMENT=Staging dotnet run
 
    % git status
 	% git add .
@@ -64,7 +66,13 @@ public class ProductOwner {
 }
 
 public class Program {
-	public static readonly IConfiguration config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+	private static readonly IConfiguration cfg = new ConfigurationBuilder().AddJsonFile("appsettings.json",optional:false,reloadOnChange:true).Build();
+	public static readonly string environment = cfg.GetSection("Environment").Get<string>();
+	public static readonly IConfiguration config = new ConfigurationBuilder()
+		.AddJsonFile("appsettings.json",optional:false,reloadOnChange:true)
+		.AddJsonFile($"appsettings_{environment}.json",optional:true,reloadOnChange:true) // Last loaded key wins! https://devblogs.microsoft.com/premier-developer/order-of-precedence-when-configuring-asp-net-core/
+		.Build();
+
 	static unsafe async Task Main(string[] args)
 	{
 		if (args.Length > 0) {
@@ -115,15 +123,18 @@ A:			if (int.TryParse(args[0], out int height)) {
 
 			return;
 		}
-	
-		InitDatabase();
 
 		// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#getvalue
 		var po = config.GetSection("ProductOwner").Get<ProductOwner>();
 		//var po = config.GetValue<ProductOwner>("ProductOwner");
 		if (!Validator.TryValidateObject(po,new ValidationContext(po),new List<ValidationResult>(),true)) throw new Exception("Unable to find all settings");
 		Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),config.GetValue<string>("ConsoleForegroundColor"),true);
+
+		InitDatabase();
+
 		Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH\\hmm}: Config: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
+
+		Console.Write($"Environment is {environment}; Environment is {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")} ({Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")})\n"); // The ASPNETCORE_ENVIRONMENT value overrides DOTNET_ENVIRONMENT
 
 		{
 			var msg = "Test Dictionary";
@@ -230,7 +241,8 @@ A:			if (int.TryParse(args[0], out int height)) {
 		//TestComposition.Tester.Go();
 		//TestDeconstruction.Tester.Go();
 		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
-		var api = new MinimalApi(); // https://localhost:5501/donut
+		//var api = new MinimalApi();
+		//var api = new MinimalApiUsingCarter(); // https://localhost:5501/donut
 	}
 
 	static void InitDatabase()
@@ -238,6 +250,10 @@ A:			if (int.TryParse(args[0], out int height)) {
 		DbProviderFactories.RegisterFactory("MySql.Data.MySqlClient", MySql.Data.MySqlClient.MySqlClientFactory.Instance);
 
 		//Db.Init(new Emvie.DataSource[] { new("MySqlSrvA", "MySql.Data.MySqlClient", "DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq;program_name=test") });
+
+		string configSection = "DataSources_" + environment;
+		if (!config.GetChildren().Any(item => item.Key == configSection)) configSection = configSection[0..configSection.LastIndexOf('_')];
+		//Console.Write($"configSection={configSection}");
 
 		List<(string nme, string ado, string con)> dataSources = config.GetSection("DataSources")
 			.Get<Dictionary<string, Dictionary<string, string>>[]>() // make sure you included Microsoft.Extensions.Configuration.Binder nuget package

@@ -8,10 +8,14 @@ using Microsoft.AspNetCore.Http;
 namespace Test;
 
 public class MinimalApi { public MinimalApi() {
-	var msg = "Test Minimal API";
+	var app = WebApplication.Create(); // uses Kestrel endpoints in appsettings.json
+
+	var msg = $"Test Minimal API (EnvironmentName={app.Environment.EnvironmentName})"; // For VSCode see .vscode/launch.json. For Visual Studio go to Project > Properties > Debug > Environment Variables:
 	Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
-	var app = WebApplication.Create(); // uses Kestrel endpoints in appsettings.json
+	//app.Environment.EnvironmentName = "Development";
+	//app.Environment.ApplicationName;
+	//app.Environment.EnvironmentName = Environment.Staging;
 
 	//app.Urls.Add("http://localhost:3000");
 	//app.Urls.Add("http://localhost:4000");
@@ -21,6 +25,8 @@ public class MinimalApi { public MinimalApi() {
 	app.MapGet("/donut", async (HttpRequest request, HttpResponse response) => {
 		await response.WriteAsync(System.IO.File.ReadAllText("Donut.html"));
 	});
+
+	//app.UseWelcomePage(
 
 	app.Run();
 }}

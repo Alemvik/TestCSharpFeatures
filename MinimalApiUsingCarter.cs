@@ -18,8 +18,8 @@ using Alemvik;
 // https://www.youtube.com/watch?v=wvpuyQANHog
 namespace Test;
 
-public class MinimalApiWithCarter {
-	public MinimalApiWithCarter() 
+public class MinimalApiUsingCarter {
+	public MinimalApiUsingCarter() 
 	{
 		var msg = "Test Minimal API using Carter library";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
