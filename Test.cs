@@ -226,22 +226,39 @@ A:			if (int.TryParse(args[0], out int height)) {
 			Console.WriteLine('\n'+str+'\n');
 		}
 
+		{ // The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result. The ?? operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
+			var msg = "Test the null-coalescing operator ??";
+			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
+			int? i1=default, i2=null,i3=3;
+			Console.WriteLine($"First not null among int? i1, i2=null,i3=3;: {i1??i2??i3}");
+		}
+
+		{ // The null-coalescing assignment operator ??= assigns the value of its right-hand operand to its left-hand operand only if the left-hand operand evaluates to null.
+			var msg = "Test the null-coalescing assignment operator ??=";
+			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
+			int? i1=default, i2=null,i3=3; // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/default-values
+			i1 ??= i3; // equivalent to: if (i1 is null) i1 = i3;
+			Console.WriteLine($"i1 after int? i1=default, i2=null,i3=3;i1 ??= i3; = {i1}");
+			i1 ??= 4; // equivalent to: if (i1 is null) i1 = 4;
+			Console.WriteLine($"i1 after int? i1=3, i2=null,i3=3;i1 ??= 4; = {i1}");
+		}
+
 		// *** The other tests ***
-		TestRegex.Tester.Go();
-		TestAsync.Tester.Go(".");
-		TestDatabase.Tester.Go();
-		TestMisc.Tester.Go();
-		TestJson.Tester.Go();
-		TestLinq.Tester.Go();
-		TestExtension.Tester.Go();
-		TestSpan.Tester.Go();
-		TestStream.Tester.Go();
-		await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
-		TestCsv();
-		TestXquery.Tester.Go();
-		TestComposition.Tester.Go();
-		TestDeconstruction.Tester.Go();
-		Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
+		//TestRegex.Tester.Go();
+		//TestAsync.Tester.Go(".");
+		//TestDatabase.Tester.Go();
+		//TestMisc.Tester.Go();
+		//TestJson.Tester.Go();
+		//TestLinq.Tester.Go();
+		//TestExtension.Tester.Go();
+		//TestSpan.Tester.Go();
+		//TestStream.Tester.Go();
+		//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
+		//TestCsv();
+		//TestXquery.Tester.Go();
+		//TestComposition.Tester.Go();
+		//TestDeconstruction.Tester.Go();
+		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 		//var api = new MinimalApi();
 		//var api = new MinimalApiUsingCarter(); // https://localhost:5501/donut
 	}

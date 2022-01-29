@@ -10,7 +10,7 @@ https://www.nuget.org/packages/Jil/
 		<TargetFramework>net6.0</TargetFramework>
 		<LangVersion>10</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Nullable>disable</Nullable>
+		<Nullable>disable</Nullable> <!-- see https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/nullable-reference-types -->
 		<ImplicitUsings>false</ImplicitUsings>
 		<!-- <PreserveCompilationContext>false</PreserveCompilationContext> -->
 		<NoWarn>CS0162,CS0164,CS0168,CS8321,CS1998,CS0219,CA1806</NoWarn>
