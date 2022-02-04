@@ -31,6 +31,13 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 	% git add .
 	% git commit -m "messages"
 	% git push -f
+	To reset main branch to origin/main use those 2 commands:
+	(git fetch downloads the latest from remote without trying to merge or rebase anything.
+   Then the git reset resets the master branch to what you just fetched. The --hard option changes
+	all the files in your working tree to match the files in origin/main)
+	% git fetch --all
+	% git reset --hard origin/main
+	Use git stash to save uncommitted changed (staged or not) and git stash pop to recover them or git stash drop to discard them
 Usefull VsCode extensions: .NET Core Test Explorer, Auto Rename Tag, C#, Code Runner, Debugger for Chrome, HTML CSS Support, HTML Preview, .Net Core Tools, NuGet Package Manager, Subtitles Editor, Thunder Client, vscode-icons, XML Tools
 To test this, just comment in/out the throw lines from the three task members.
 */
