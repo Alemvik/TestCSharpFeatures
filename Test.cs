@@ -25,6 +25,8 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 	% bin/Debug/net6.0/Test
 	% ASPNETCORE_ENVIRONMENT=Staging dotnet run
 
+	% git config --global http.sslVerify false
+	% git clone https://github.com/Alemvik/TestCHarpFeatures
    % git status
 	% git add .
 	% git commit -m "messages"
@@ -39,8 +41,14 @@ global using System.ComponentModel.DataAnnotations;
 global using System.Data;
 global using System.Data.Common;
 global using System.Diagnostics;
+global using System.Globalization;
 global using System.IO;
 global using System.Linq;
+global using System.Net;
+global using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
@@ -66,13 +74,14 @@ public class ProductOwner {
 	public override string ToString() => $"Owner's name is {Name}, his id is {Id} and his start date is {StartDate:yyyy-MM-dd}\n";
 }
 
-public class Program {
+public static class Program {
 	private static readonly IConfiguration cfg = new ConfigurationBuilder().AddJsonFile("appsettings.json",optional:false,reloadOnChange:true).Build();
 	public static readonly string environment = cfg.GetSection("Environment").Get<string>();
 	public static readonly IConfiguration config = new ConfigurationBuilder()
 		.AddJsonFile("appsettings.json",optional:false,reloadOnChange:true)
 		.AddJsonFile($"appsettings_{environment}.json",optional:true,reloadOnChange:true) // Last loaded key wins! https://devblogs.microsoft.com/premier-developer/order-of-precedence-when-configuring-asp-net-core/
 		.Build();
+	static readonly HttpClient httpClient = new(); // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
 
 	static async Task Main(string[] args)
 	{
@@ -243,7 +252,46 @@ A:			if (int.TryParse(args[0], out int height)) {
 			Console.WriteLine($"i1 after int? i1=3, i2=null,i3=3;i1 ??= 4; = {i1}");
 		}
 
-		// *** The other tests ***
+		{ // https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=net-6.0
+			var msg = "Test sending a https web get request";
+			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
+
+			string uri = "http://worldclockapi.com/api/json/utc/now";
+			try {
+				HttpResponseMessage response = await httpClient.GetAsync(uri);
+				response.EnsureSuccessStatusCode();
+				string responseBody = await response.Content.ReadAsStringAsync();
+				// Above three lines can be replaced with this new helper method: string responseBody = await httpClient.GetStringAsync(uri);
+
+				Console.WriteLine("\r\nThe following headers were received in the response:");
+				// Displays each header and it's key associated with the response.
+				// RFC 2616:
+				//   Content header fields here https://www.rfc-editor.org/rfc/rfc2616#section-7.1
+				//   Request header fields here https://www.rfc-editor.org/rfc/rfc2616#section-5.3
+				//   Response header fields here https://www.rfc-editor.org/rfc/rfc2616#section-6.2
+				foreach(var header in response.Content.Headers)
+					Console.Write($"  {header.Key} : {((string[])header.Value)[0]}\n");
+
+				if (response.Content.Headers.TryGetValues("Content-Type", out var value)) {
+					string contentType = value.ToArray()[0].Split(';')[0].Trim();
+					// == "application/json"
+					Console.Write($"contentType={contentType}\n");
+				}
+
+				if (uri == "http://worldclockapi.com/api/json/utc/now") {
+					Console.WriteLine(responseBody);
+					var jsonObj = JsonSerializer.Deserialize<Dictionary<string,object>>(responseBody);
+					Console.WriteLine($"currentDateTime = {DateTime.Parse(jsonObj["currentDateTime"].ToString()):yyyy-mm-dd HH:mm:ss}\n");
+				}
+				//await Task.Delay(rnd.Next(1, 5 * 60 + 1) * 1000); // wait between 1 to 5 minutes
+			} catch(HttpRequestException e) {
+				Console.WriteLine("\nException Caught!");	
+				Console.WriteLine("Message :{0} ",e.Message);
+			}
+		}
+		Console.Write('\n');
+
+		// *** The other tests (just uncoment the ones you want to explore) ***
 		//TestRegex.Tester.Go();
 		//TestAsync.Tester.Go(".");
 		//TestDatabase.Tester.Go();
