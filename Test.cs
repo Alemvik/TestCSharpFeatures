@@ -263,7 +263,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 			var msg = "Test sending a https web get request";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 
-			string uri = "https://api.agify.io?name=Sufg"; // https://mixedanalytics.com/blog/list-actually-free-open-no-auth-needed-apis/
+			string uri = "https://api.agify.io?name=Alain"; // https://mixedanalytics.com/blog/list-actually-free-open-no-auth-needed-apis/
 			try {
 				HttpResponseMessage response = await httpClient.GetAsync(uri);
 				response.EnsureSuccessStatusCode();
