@@ -263,7 +263,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 			var msg = "Test sending a https web get request";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 
-			string uri = "http://worldclockapi.com/api/json/utc/now";
+			string uri = "https://api.agify.io?name=Sufg"; // https://mixedanalytics.com/blog/list-actually-free-open-no-auth-needed-apis/
 			try {
 				HttpResponseMessage response = await httpClient.GetAsync(uri);
 				response.EnsureSuccessStatusCode();
@@ -289,6 +289,10 @@ A:			if (int.TryParse(args[0], out int height)) {
 					Console.WriteLine(responseBody);
 					var jsonObj = JsonSerializer.Deserialize<Dictionary<string,object>>(responseBody);
 					Console.WriteLine($"currentDateTime = {DateTime.Parse(jsonObj["currentDateTime"].ToString()):yyyy-mm-dd HH:mm:ss}\n");
+				} else if (uri.StartsWith("https://api.agify.io?name=")) {
+					Console.WriteLine(responseBody);
+					var jsonObj = JsonSerializer.Deserialize<Dictionary<string,object>>(responseBody);
+					Console.WriteLine($"Age = {jsonObj["age"]??0}\n");
 				}
 				//await Task.Delay(rnd.Next(1, 5 * 60 + 1) * 1000); // wait between 1 to 5 minutes
 			} catch(HttpRequestException e) {
