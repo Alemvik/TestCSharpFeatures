@@ -1,4 +1,5 @@
 ﻿/*
+https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-run
 https://www.youtube.com/watch?v=ifTF3ags0XI
 https://docs.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code
 https://docs.microsoft.com/en-us/dotnet/core/tools/
@@ -21,6 +22,8 @@ Use VsCode's terminal to create project, run, build, etc. examples:
 	% dotnet restore ; Useful to do after adding packages in the Test.csproj file
 	% dotnet run -c debug ; or: dotnet run -c release
 	% dotnet build -c Release
+	% dotnet clean
+	% dotnet run --project Test.csproj
 	% dotnet run Test.dll 
 	% bin/Debug/net6.0/Test
 	% ASPNETCORE_ENVIRONMENT=Staging dotnet run
@@ -82,12 +85,12 @@ public class ProductOwner {
 }
 
 public static class Program {
-	private static readonly IConfiguration cfg = new ConfigurationBuilder().AddJsonFile("appsettings.json",optional:false,reloadOnChange:true).Build();
+	/*private static readonly IConfiguration cfg = new ConfigurationBuilder().AddJsonFile("appsettings.json",optional:false,reloadOnChange:true).Build();
 	public static readonly string environment = cfg.GetSection("Environment").Get<string>();
 	public static readonly IConfiguration config = new ConfigurationBuilder()
 		.AddJsonFile("appsettings.json",optional:false,reloadOnChange:true)
 		.AddJsonFile($"appsettings_{environment}.json",optional:true,reloadOnChange:true) // Last loaded key wins! https://devblogs.microsoft.com/premier-developer/order-of-precedence-when-configuring-asp-net-core/
-		.Build();
+		.Build();*/
 	static readonly HttpClient httpClient = new(); // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
 
 	static async Task Main(string[] args)
@@ -141,17 +144,23 @@ A:			if (int.TryParse(args[0], out int height)) {
 			return;
 		}
 
+		// for (int i=0; i<13 ;i++) {
+		// 	Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH\\hmm}: Console color is {Cfg.Get<string>("ConsoleForegroundColor","White")}\n");
+		// 	System.Threading.Thread.Sleep(3000);
+		// }
+
+
 		// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#getvalue
-		var po = config.GetSection("ProductOwner").Get<ProductOwner>();
+		var po = Cfg.Get<ProductOwner>("ProductOwner",null);
 		//var po = config.GetValue<ProductOwner>("ProductOwner");
 		if (!Validator.TryValidateObject(po,new ValidationContext(po),new List<ValidationResult>(),true)) throw new Exception("Unable to find all settings");
-		Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),config.GetValue<string>("ConsoleForegroundColor"),true);
+		Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),Cfg.Get<string>("ConsoleForegroundColor",""),true);
 
 		InitDatabase();
 
-		Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH\\hmm}: App version is {System.Reflection.Assembly.GetEntryAssembly().GetName().Version}\nConfig: Console color is {config.GetValue<string>("ConsoleForegroundColor")}\nProductOwner is {po}");
+		Console.WriteLine($"{DateTime.Now:yyyy-MM-dd HH\\hmm}: App version is {System.Reflection.Assembly.GetEntryAssembly().GetName().Version}\nConfig: Console color is {Cfg.Get<string>("ConsoleForegroundColor","White")}\nProductOwner is {po}");
 
-		Console.Write($"Environment is {environment}; Environment is {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")} ({Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")})\n"); // The ASPNETCORE_ENVIRONMENT value overrides DOTNET_ENVIRONMENT
+		Console.Write($"Environment regarding the appsettings.json file is {Cfg.environment}; Environment is {Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")} ({Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")})\n"); // The ASPNETCORE_ENVIRONMENT value overrides DOTNET_ENVIRONMENT
 
 		{
 			var msg = "Test Dictionary";
@@ -167,7 +176,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 		{
 			var msg = "Test Read to \"string[]\" from appsettings.json";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
-			var animals = config.GetSection("Animals").Get<string[]>();
+			var animals = Cfg.Get<string[]>("Animals",null);
 			Console.WriteLine($"Animals: {string.Join(',',animals)}");
 		}
 
@@ -175,7 +184,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 			var msg = "Test Read to \"(string,string)[]\" from appsettings.json";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 
-			(string Category, string Produce)[] items = config.GetSection("Items")
+			(string Category, string Produce)[] items = Cfg.Get("Items")
 				.Get<Dictionary<string,string>[]>()
 				.SelectMany(d => d) // Flatten from Dictionary[] to KeyValuePair[]
 				.Select(kvp => (kvp.Key, kvp.Value))
@@ -187,7 +196,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 			var msg = "Test Read to \"List<(string,string[])>\" from appsettings.json";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 
-			List<(string Category, string[] Produces)> products = config.GetSection("Products")
+			List<(string Category, string[] Produces)> products = Cfg.Get("Products")
 				.Get<Dictionary<string,string[]>[]>()
 				.SelectMany(i => i) // Flatten from Dictionary[] to KeyValuePair[]
 				.Select(i => (i.Key, i.Value)) // .Select(i => new ValueTuple<string, string[]>(i.Key, i.Value))
@@ -203,7 +212,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 			var msg = "Test Read to \"List<(string,string,string)>\" from appsettings.json";
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 
-			List<(string nme, string ado, string con)> dataSources = config.GetSection("DataSources")
+			List<(string nme, string ado, string con)> dataSources = Cfg.Get("DataSources")
 				.Get<Dictionary<string,Dictionary<string,string>>[]>()
 				.SelectMany(i => i)
 				.Select(i => ValueTuple.Create(i.Key,i.Value.First().Key,i.Value.First().Value))
@@ -240,6 +249,13 @@ A:			if (int.TryParse(args[0], out int height)) {
 			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
 			string str = CsvToInsert("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));
 			Console.WriteLine('\n'+str+'\n');
+		}
+
+		{
+			var msg = "Test CsvToUpdates statement";
+			Console.WriteLine($"\n--- {msg} {new String('-',Math.Max(65 - msg.Length,3))}\n");
+			var updates = CsvToUpdates("Test2.csv", "dbo.TableA", ',', (x=>x.Replace("\\n","'+CHAR(10)+'")));
+			Console.WriteLine('\n'+string.Join('\n',updates)+'\n');
 		}
 
 		{ // The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null; otherwise, it evaluates the right-hand operand and returns its result. The ?? operator doesn't evaluate its right-hand operand if the left-hand operand evaluates to non-null.
@@ -310,7 +326,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 		//TestJson.Tester.Go();
 		//TestLinq.Tester.Go();
 		//TestExtension.Tester.Go();
-		//TestSpan.Tester.Go();
+		TestSpan.Tester.Go();
 		//TestStream.Tester.Go();
 		//await TestDynamicType.Tester.Go("Alemvik" /*"ElfoCrash"*/);
 		//TestCsv();
@@ -328,11 +344,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 
 		//Db.Init(new Emvie.DataSource[] { new("MySqlSrvA", "MySql.Data.MySqlClient", "DataSource=localhost;port=3306;Database=Skillango;uid=root;pwd=1111qqqq;program_name=test") });
 
-		string configSection = "DataSources_" + environment;
-		if (!config.GetChildren().Any(item => item.Key == configSection)) configSection = configSection[0..configSection.LastIndexOf('_')];
-		//Console.Write($"configSection={configSection}");
-
-		List<(string nme, string ado, string con)> dataSources = config.GetSection("DataSources")
+		List<(string nme, string ado, string con)> dataSources = Cfg.Get("DataSources")
 			.Get<Dictionary<string, Dictionary<string, string>>[]>() // make sure you included Microsoft.Extensions.Configuration.Binder nuget package
 			.SelectMany(i => i)
 			.Select(i => ValueTuple.Create(i.Key, i.Value.First().Key, i.Value.First().Value))
@@ -358,7 +370,7 @@ A:			if (int.TryParse(args[0], out int height)) {
 		string csv = tbl.ToCsv();
 		Console.ForegroundColor = ConsoleColor.Magenta;
 		Console.Write($"\n---\n{csv}\n---\n");
-		Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),config.GetValue<string>("ConsoleForegroundColor"),true);
+		Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor),Cfg.Get<string>("ConsoleForegroundColor","White"),true);
 	}
 
 	public static void DiceProbabilities()

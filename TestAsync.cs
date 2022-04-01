@@ -37,7 +37,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
 
-using Test;
+using Alemvik;
 
 namespace TestAsync;
 
@@ -63,7 +63,7 @@ public static class Tester {
 		} catch (Exception e) {
 			Console.WriteLine($"Exception: {e.Message}");
 		} finally {
-			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), Program.config.GetValue<string>("ConsoleForegroundColor"), true);
+			Console.ForegroundColor = (ConsoleColor)Enum.Parse(typeof(ConsoleColor), Cfg.Get<string>("ConsoleForegroundColor","White"), true);
 			//Console.ResetColor();
 			var results = new List<string>();
 			Console.Write($"{_sw.Elapsed.TotalSeconds:0.000}: ");

@@ -1,7 +1,9 @@
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 using Alemvik;
 
@@ -28,6 +30,36 @@ static class Tester {
 			for (int x=0; x<matrix.GetLength(1) ;x++) if (matrix[y,x]==-1) Console.Write("￭"); else Console.Write($"{matrix[y,x],1}"); // https://docs.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting
 			Console.Write('\n');
 		}
+
+		// ref https://www.youtube.com/watch?v=B2yOjLyEZk0
+		var guid = Guid.NewGuid();
+		Span<byte> bytesA = stackalloc byte[16];
+		Span<byte> bytesB = stackalloc byte[24];
+		MemoryMarshal.TryWrite(bytesA, ref guid);
+		Base64.EncodeToUtf8(bytesA, bytesB, out _, out _);
+		Span<char> charsA = stackalloc char[22];
+		for (var i=0; i<22 ;i++) charsA[i] = bytesB[i] switch {
+			(byte)'/' => '-',
+			(byte)'+' => '_',
+			_ => (char)bytesB[i]
+		};
+		string urlFriendlyGuid = new (charsA);
+		//The block above is like the line below, yet the code has no heap allocation
+		//var urlFriendlyGuid = Convert.ToBase64String(guid.ToByteArray()).Replace('/','-').Replace('+','_').Replace('=','\0');
+
+		Span<char> chars = stackalloc char[24];
+		for (var i=0; i<22 ;i++) chars[i] = urlFriendlyGuid[i] switch {
+			'-' => '/',
+			'_' => '+',
+			_ => (char)urlFriendlyGuid[i]
+		};
+		chars[22] = chars[23] = '=';
+		Span<byte> bytes = stackalloc byte[16];
+		Convert.TryFromBase64Chars(chars,bytes,out _);
+		var guidBack = new Guid(bytes);
+		Console.WriteLine($"guid={guid}\nguid={guidBack}\nurlFriendlyGuid={urlFriendlyGuid}\n");
+
+
 	}
 	static (int year, int month, int day) GetDateComponents(string sdate_a)
 	{

@@ -24,6 +24,7 @@ https://www.nuget.org/packages/Jil/
 	</PropertyGroup>
 
 	<ItemGroup>
+		<!-- see https://docs.microsoft.com/en-us/nuget/concepts/package-versioning -->
 		<!-- <PackageReference Include="AutoFixture" Version="4.17.*" /> -->
 		<!-- <PackageReference Include="BenchmarkDotNet" Version="0.13.0" /> -->
 		<PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
@@ -42,12 +43,12 @@ https://www.nuget.org/packages/Jil/
 
 		<PackageReference Include="Carter" Version="5.2.0" />
 
-		<PackageReference Include="Alemvik" Version="1.0.5" />
+		<!-- <PackageReference Include="Alemvik" Version="1.0.5" /> -->
 		<!-- <ProjectReference Include="../Alemvik/Alemvik/Alemvik.csproj" Version="1.0.1" /> -->
-     <!-- <Reference Include="Alemvik" Version="1.0.4">
-       <HintPath>../ref/Alemvik.dll</HintPath>
-		 <HintPath>../Alemvik/Alemvik/bin/release/net5.0/Alemvik.dll</HintPath>
-     </Reference> -->
+     <Reference Include="Alemvik" Version="1.1.0">
+       <!-- <HintPath>../ref/Alemvik.dll</HintPath> -->
+		 <HintPath>../Alemvik/Alemvik/bin/release/net6.0/Alemvik.dll</HintPath>
+     </Reference>
 
 		<Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest"/>
 		<Content Include="appsettings_*.json" CopyToOutputDirectory="PreserveNewest"/>
