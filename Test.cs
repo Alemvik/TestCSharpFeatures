@@ -272,7 +272,7 @@ public static class Program {
 		//TestComposition.Tester.Go();
 		//TestDeconstruction.Tester.Go();
 		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
-		//var api = new MinimalApi();
+		var api = new MinimalApi();
 		//var api = new MinimalApiUsingCarter(); // https://localhost:5501/donut
 		TestBestPath.Tester.Go();
 	}

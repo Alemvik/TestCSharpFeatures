@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 // https://www.youtube.com/watch?v=NtFM-sK6xAo
 // https://gist.github.com/davidfowl/ff1addd02d239d2d26f4648a06158727
 // https://docs.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis?view=aspnetcore-6.0
+// https://benfoster.io/blog/mvc-to-minimal-apis-aspnet-6/
 namespace Test;
 
 public class MinimalApi { public MinimalApi() {
@@ -20,9 +21,11 @@ public class MinimalApi { public MinimalApi() {
 	//app.Urls.Add("http://localhost:3000");
 	//app.Urls.Add("http://localhost:4000");
 
-	app.MapGet("/", () => $"Hello World!");
+	app.MapGet("/", () => $"Hello World!"); // https://localhost:9999
 
-	app.MapGet("/donut", async (HttpRequest request, HttpResponse response) => {
+	app.MapGet("/location/{city}", (string city) => $"Hello people of {city}"); // https://localhost:9999/Location/Mascouche
+
+	app.MapGet("/donut", async (HttpRequest request, HttpResponse response) => { // https://localhost:9999/Donut
 		await response.WriteAsync(System.IO.File.ReadAllText("Donut.html"));
 	});
 
