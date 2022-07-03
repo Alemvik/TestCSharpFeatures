@@ -30,6 +30,8 @@ that waiting is happening instead of just sitting idle. Parallelism (multi-threa
 expensive work where you cannot yield the threads back.
 
 https://www.youtube.com/watch?v=lHuyl_WTpME
+https://docs.microsoft.com/en-us/dotnet/standard/asynchronous-programming-patterns/
+https://docs.microsoft.com/en-us/dotnet/standard/parallel-programming/task-based-asynchronous-programming
 
 */
 using System.Threading;
@@ -47,6 +49,8 @@ public static class Tester {
 	{
 		var msg = "TestAsync";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
+
+		//Parallel.Invoke(() => DoSomeWork(), () => DoSomeOtherWork());
 
 		_sw = Stopwatch.StartNew();
 		var taskA = GrindCoffeeTask();
@@ -118,6 +122,7 @@ public static class Tester {
 		Console.WriteLine($"{_sw.Elapsed.TotalSeconds:0.000}: Prepare toasts task is done");
 		return "Two toasts are ready";
 	}
+	
 	static async void CallMethod()
 	{
 		string filePath = "appsettings.json";
