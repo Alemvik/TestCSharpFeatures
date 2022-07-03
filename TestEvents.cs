@@ -54,6 +54,7 @@ static class Tester {
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
 		Person p = new();
+		p.FirstName = "Émie";
 		p.PropertyChanged += Person_PropertyChanged;
 		p.PropertyChanged += Person_PropertyChanged; // twice the fun
 		p.FirstName = "Alain";
