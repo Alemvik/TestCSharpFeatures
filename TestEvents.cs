@@ -1,11 +1,21 @@
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 // https://docs.microsoft.com/en-us/dotnet/csharp/distinguish-delegates-events
 // https://docs.microsoft.com/en-us/dotnet/standard/events/
 
 namespace TestEvents;
+public static class DelegateExtensions
+{
+    public static Task InvokeAsync<TArgs>(this Func<object, TArgs, Task> func, object sender, TArgs e)
+    {
+        return func == null ? Task.CompletedTask
+            : Task.WhenAll(func.GetInvocationList().Cast<Func<object, TArgs, Task>>().Select(f => f(sender, e)));
+    }
+}
 
 public class Person : INotifyPropertyChanged
 {
@@ -51,7 +61,9 @@ public class Person : INotifyPropertyChanged
 }
 
 static class Tester {
-	public static void Go()
+	static event Func<object, EventArgs, Task> MyAsyncEvent;
+
+	public static async Task Go()
 	{
 		var msg = "TestEvents";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
@@ -64,6 +76,14 @@ static class Tester {
 		p.FirstName = "Alain";
 		p.PropertyChanged -= Person_PropertyChanged; // no more twice the fun
 		p.LastName = "Trépanier";
+
+		// Example 2
+		MyAsyncEvent += SomeAsyncMethodA;
+		MyAsyncEvent += SomeAsyncMethodB;
+
+		await MyAsyncEvent.InvokeAsync(null, EventArgs.Empty);
+
+		Console.WriteLine("Invoked");
 	}
 
     static void Person_PropertyChanged(Object person, EventArgs e)
@@ -71,5 +91,19 @@ static class Tester {
 		Person p = person as Person;
 		PropertyChangedEventArgs ea = e as PropertyChangedEventArgs;
 		Console.WriteLine($"FirstName={p.FirstName}, lastName={p.LastName}, The property that just changed is {ea.PropertyName}");
+    }
+
+    static async Task SomeAsyncMethodA(object src, EventArgs args)
+    {
+        Console.WriteLine("Task A...");
+        await Task.Delay(2000);
+        Console.WriteLine("Task A finished");
+    }
+
+    static async Task SomeAsyncMethodB(object src, EventArgs args)
+    {
+        Console.WriteLine("Task B...");
+        await Task.Delay(1000);
+        Console.WriteLine("Task B finished");
     }
 }
