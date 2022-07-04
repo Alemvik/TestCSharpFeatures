@@ -2,7 +2,10 @@ using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
 
-namespace TestEvents; // https://docs.microsoft.com/en-us/dotnet/standard/events/
+// https://docs.microsoft.com/en-us/dotnet/csharp/distinguish-delegates-events
+// https://docs.microsoft.com/en-us/dotnet/standard/events/
+
+namespace TestEvents;
 
 public class Person : INotifyPropertyChanged
 {
@@ -53,8 +56,9 @@ static class Tester {
 		var msg = "TestEvents";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
-		Person p = new();
-		p.FirstName = "Émie";
+		Person p = new() {
+			FirstName = "Émie"
+		};
 		p.PropertyChanged += Person_PropertyChanged;
 		p.PropertyChanged += Person_PropertyChanged; // twice the fun
 		p.FirstName = "Alain";
