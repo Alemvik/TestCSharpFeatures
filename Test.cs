@@ -93,7 +93,7 @@ public static class Program {
 		string thisApplicationName = Path.GetFileNameWithoutExtension(Environment.CommandLine);
 		string thisapplicationVersion = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
 		Console.WriteLine($"{thisApplicationName} v{thisapplicationVersion}");
-		return;
+		//return;
 
 		// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#getvalue
 		var po = Cfg.Get<ProductOwner>("ProductOwner",null);
