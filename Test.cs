@@ -56,6 +56,8 @@ global using System.Globalization;
 global using System.IO;
 global using System.Linq;
 global using System.Net.Http;
+
+using System.Reflection;
 using System.Text.Json;
 
 using System.Threading.Tasks;
@@ -88,6 +90,11 @@ public static class Program {
 
 	static async Task Main(string[] args)
 	{
+		string thisApplicationName = Path.GetFileNameWithoutExtension(Environment.CommandLine);
+		string thisapplicationVersion = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+		Console.WriteLine($"{thisApplicationName} v{thisapplicationVersion}");
+		return;
+
 		// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#getvalue
 		var po = Cfg.Get<ProductOwner>("ProductOwner",null);
 		//var po = config.GetValue<ProductOwner>("ProductOwner");

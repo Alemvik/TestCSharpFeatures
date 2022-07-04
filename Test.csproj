@@ -15,7 +15,9 @@ https://www.nuget.org/packages/Jil/
 		<!-- <PreserveCompilationContext>false</PreserveCompilationContext> -->
 		<NoWarn>CS0162,CS0164,CS0168,CS8321,CS1998,CS0219,CA1806</NoWarn>
 
-		<AssemblyVersion>1.0.0.2</AssemblyVersion>
+ 		<Version>1.0.0.1</Version>
+		<!-- <AssemblyVersion>1.0.0.2</AssemblyVersion>
+ 		<FileVersion>1.0.0.3</FileVersion> -->
 		<Company>Alemvik inc.</Company>
 		<Authors>Alemvik</Authors>
 		<Product>TestCSharpFeatures</Product>
