@@ -93,7 +93,6 @@ public static class Program {
 		string thisApplicationName = Path.GetFileNameWithoutExtension(Environment.CommandLine);
 		string thisapplicationVersion = Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
 		Console.WriteLine($"{thisApplicationName} v{thisapplicationVersion}");
-		//return;
 
 		// https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-5.0#getvalue
 		var po = Cfg.Get<ProductOwner>("ProductOwner",null);
@@ -268,8 +267,8 @@ public static class Program {
 		//TestAsync.Tester.Go(".");
 		//TestDatabase.Tester.Go();
 		//TestMisc.Tester.Go();
-		//TestJson.Tester.Go();
-		//TestLinq.Tester.Go();
+		TestJson.Tester.Go();
+		TestLinq.Tester.Go();
 		//TestExtension.Tester.Go();
 		//TestSpan.Tester.Go();
 		//TestStream.Tester.Go();
@@ -278,7 +277,7 @@ public static class Program {
 		//TestXquery.Tester.Go();
 		//TestComposition.Tester.Go();
 		//TestDeconstruction.Tester.Go();
-		await TestEvents.Tester.Go();
+		//await TestEvents.Tester.Go();
 		//Console.WriteLine(DateTime.Now.Date); // How to have it is OS default format ?
 		//var api = new MinimalApi();
 		//var api = new MinimalApiUsingCarter(); // https://localhost:5501/donut

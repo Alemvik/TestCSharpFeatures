@@ -11,6 +11,14 @@ static class Tester {
 		var msg = "TestLinq";
 		Console.WriteLine($"\n--- {msg} {new String('-', Math.Max(65-msg.Length,3))}\n");
 
+		var users = new string[] {"Alain Trepanier", "Émie Dutel", "Évie Dutel"};
+		var firstDutel = users.FirstOrDefault(x => x.EndsWith("dutel", StringComparison.CurrentCultureIgnoreCase), "N/A"); // use First when you want the first item from zero or more
+		var panier = users.SingleOrDefault(x => x.EndsWith("panier", StringComparison.CurrentCultureIgnoreCase), "N/A"); // use Single when you are expecting zero or one item
+		var topTwo = users.Where(x => x.Contains("ie",StringComparison.CurrentCultureIgnoreCase))
+			.OrderByDescending(x => x)
+         .Take(2);
+		Console.WriteLine($"firstDutel={firstDutel}; panier={panier}; topTwo={string.Join(',',topTwo)}");
+
 		var owners = new List<Owner> {
 			new Owner { Name = "Alain Trépanier", Pets = new Pet[] { new Pet { Name = "Miko", Age = 5 }, new Pet { Name = "Betzie", Age = 2 }, new Pet { Name = "Émeraude", Age = 6 } } },
 			new Owner { Name = "Évie Dutel", Pets = new Pet[] { new Pet { Name = "Snowball", Age = 1 } } },
@@ -20,7 +28,7 @@ static class Tester {
 		// LINQ comes in two syntactical flavors: The Query syntax and the Method syntax. They can do almost the same, but while 
 		// the query syntax is almost a new language within C#, the method syntax looks just like regular C# method calls.
 
-		// Query syntax
+		// Query syntax aka fluent syntax
 		IEnumerable<string> namesA = from person in owners
 										where person.Pets.All(pet => pet.Age > 5)
 										orderby person.Name descending
